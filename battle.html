@@ -67,6 +67,7 @@
         
 
         function doKeyDown(evt){
+            socket.emit('test',"hi");
             switch (evt.keyCode) {
                 case 38:  /* Up arrow was pressed */
                     if (Players[0].y - Players[0].dy > 0){
@@ -114,9 +115,8 @@
         canvas = document.getElementById("canvas");
         ctx = canvas.getContext("2d");
         setInterval(draw,10);
-        // socket.emit('test',"after drawing");
 
-localoca
+
         window.addEventListener('keydown',doKeyDown,true);
 
 
