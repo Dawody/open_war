@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>OPEN WAR</title>
+</head>
+<body>
+<section>
+<div>
+    <canvas id="canvas" width="1000" height="400">
+        This text is displayed if your browser does not support HTML5 Canvas.
+    </canvas>
+</div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+
+    <script type="text/javascript">
+
+        var WIDTH = 1000; //the ground
+        var HEIGHT = 400;
+
+        var canvas;
+        var ctx;
+
+        var socket = io('/survive-room');
+        var Players =[] ;
+
+        function Player(){
+            this.dx=5;
+            this.dy=5;
+            this.x=150; //initial position
+            this.y=100; //initial position
+        }
+
+
+        function circle(x,y,r){
+            ctx.beginPath();
+            ctx.arc(x,y,r,0,Math.PI*2,true);
+            ctx.fill();
+        }
+
+        function rect(x,y,w,h){
+            ctx.beginPath();
+            ctx.rect(x,y,w,h);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function clear() {
+            ctx.clearRect(0,0,WIDTH,HEIGHT);
+        }
+
+
+        function draw() {
+            clear();
+            ctx.fillStyle= "white";
+            ctx.strokeStyle= "black";
+            rect(0,0,WIDTH,HEIGHT);
+
+            for(var i=0 ; i<Players.length ;i++){
+                ctx.fillStyle = "purple";
+                circle(Players[i].x,Players[i].y,10);
+            }
+        }
+        
+
+        function doKeyDown(evt){
+            switch (evt.keyCode) {
+                case 38:  /* Up arrow was pressed */
+                    if (Players[0].y - Players[0].dy > 0){
+                        Players[0].y -= Players[0].dy;
+                    }
+                    break;
+                case 40:  /* Down arrow was pressed */
+                    if (Players[0].y + Players[0].dy < HEIGHT){
+                        Players[0].y += Players[0].dy;
+                    }
+                    break;
+                case 37:  /* Left arrow was pressed */
+                    if (Players[0].x - Players[0].dx > 0){
+                        Players[0].x -= Players[0].dx;
+                    }
+                    break;
+                case 39:  /* Right arrow was pressed */
+                    if (Players[0].x + Players[0].dx < WIDTH){
+                        Players[0].x += Players[0].dx;
+                    }
+                    break;
+            }
+
+            socket.emit('MY position',me.x,me.y);
+        }
+
+
+        /**
+         * the Main start from here
+         */
+
+        Players.push(new Player());
+        Players.push(new Player());
+        Players.push(new Player());
+
+
+        // socket.emit('test',"player declared successfully");
+        //
+        //  for(var i=0 ; i<Players.length ;i++) {
+        //      socket.emit('test',Players[i].x);
+        //  }
+
+
+
+        canvas = document.getElementById("canvas");
+        ctx = canvas.getContext("2d");
+        setInterval(draw,10);
+        // socket.emit('test',"after drawing");
+
+localoca
+        window.addEventListener('keydown',doKeyDown,true);
+
+
+
+
+
+
+
+
+
+
+
+
+    </script>
+
+</section>
+</body>
+</html>
