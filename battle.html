@@ -19,20 +19,21 @@
 
         var WIDTH = 1000; //the ground
         var HEIGHT = 400;
+        var client_id ;
 
         var canvas;
         var ctx;
 
         var socket = io('/survive-room');
         var Players =[] ;
-
-        function Player(){
-            this.dx=5;
-            this.dy=5;
-            this.x=150; //initial position
-            this.y=100; //initial position
-        }
-
+        //
+        // function Player(){
+        //     this.dx=5;
+        //     this.dy=5;
+        //     this.x=150; //initial position
+        //     this.y=100; //initial position
+        // }
+        //
 
         function circle(x,y,r){
             ctx.beginPath();
@@ -67,42 +68,115 @@
         
 
         function doKeyDown(evt){
-            socket.emit('test',"hi");
-            switch (evt.keyCode) {
-                case 38:  /* Up arrow was pressed */
-                    if (Players[0].y - Players[0].dy > 0){
-                        Players[0].y -= Players[0].dy;
-                    }
-                    break;
-                case 40:  /* Down arrow was pressed */
-                    if (Players[0].y + Players[0].dy < HEIGHT){
-                        Players[0].y += Players[0].dy;
-                    }
-                    break;
-                case 37:  /* Left arrow was pressed */
-                    if (Players[0].x - Players[0].dx > 0){
-                        Players[0].x -= Players[0].dx;
-                    }
-                    break;
-                case 39:  /* Right arrow was pressed */
-                    if (Players[0].x + Players[0].dx < WIDTH){
-                        Players[0].x += Players[0].dx;
-                    }
-                    break;
-            }
 
-            socket.emit('MY position',me.x,me.y);
+//            socket.emit('test',"hi")
+            socket.emit('move_request',evt.keyCode);
+            socket.emit('MY position');
+
+//            socket.emit('MY position',me.x,me.y);
         }
 
 
-        /**
+
+
+
+        function init() {
+            return new Promise(function (resolve) {
+                socket.emit('init')
+                //resolve();
+            });
+        }
+
+        function identification() {
+            return new Promise(function (resolve) {
+
+
+
+                socket.on('identification', function (id) {
+                    socket.emit('test',"55555555555555555555555");
+                    resolve(id);
+                    client_id = id;
+
+                })
+
+
+
+
+
+            });
+        }
+
+
+        function print_id() {
+            return new Promise(function (resolve) {
+
+                    socket.emit('print my id', client_id)
+                //resolve();
+
+            });
+        }
+
+
+        async function asyncCall() {
+            socket.emit('test',"start async");
+             //init();
+            socket.emit('init')
+            await identification();
+             //print_id();
+            socket.emit('print my id', client_id)
+
+
+        }
+
+
+
+
+
+        async function updatePlayers(){
+            socket.emit('test',"number of players now equal : "+Players.length);
+            socket.emit('test','asking for update');
+            socket.emit('updatePlayers request');
+            socket.emit('test','start for response the update');
+            await  new Promise(function (resolve) {
+
+
+
+                socket.on('updatePlayers response', function (Players_arg) {
+                    socket.emit('test','inside updating process');
+                    resolve(Players_arg);
+                    Players=Players_arg;
+                    client_id = id;
+                })
+
+            });
+            socket.emit('test','finish update');
+        }
+
+
+
+
+
+
+        /****************************************************************************************************************
          * the Main start from here
          */
 
+
+        socket.emit('test',"before asyncCall");
+        asyncCall();
+//        socket.emit('test',"number of players now equal : "+Players.length);
+        updatePlayers();
+
+
+
+
+/*
+
         Players.push(new Player());
         Players.push(new Player());
         Players.push(new Player());
 
+*/
 
         // socket.emit('test',"player declared successfully");
         //
@@ -112,9 +186,11 @@
 
 
 
+
         canvas = document.getElementById("canvas");
         ctx = canvas.getContext("2d");
         setInterval(draw,10);
+        setInterval(updatePlayers,200);
 
 
         window.addEventListener('keydown',doKeyDown,true);
