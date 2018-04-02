@@ -26,14 +26,7 @@
 
         var socket = io('/survive-room');
         var Players =[] ;
-        //
-        // function Player(){
-        //     this.dx=5;
-        //     this.dy=5;
-        //     this.x=150; //initial position
-        //     this.y=100; //initial position
-        // }
-        //
+        var Fires =[];
 
         function circle(x,y,r){
             ctx.beginPath();
@@ -64,67 +57,46 @@
                 ctx.fillStyle = "purple";
                 circle(Players[i].x,Players[i].y,10);
             }
+
+            for(var i=0 ; i<Fires.length ;i++){
+                ctx.fillStyle = "purple";
+                circle(Fires[i].x,Fires[i].y,2);
+            }
+
+
         }
         
 
         function doKeyDown(evt){
-
-//            socket.emit('test',"hi")
             socket.emit('move_request',evt.keyCode);
             socket.emit('MY position');
-
-//            socket.emit('MY position',me.x,me.y);
         }
 
 
 
 
-
-        function init() {
-            return new Promise(function (resolve) {
-                socket.emit('init')
-                //resolve();
-            });
-        }
 
         function identification() {
             return new Promise(function (resolve) {
 
-
-
                 socket.on('identification', function (id) {
-                    socket.emit('test',"55555555555555555555555");
+                    socket.emit('test',"resolving the new player id");
                     resolve(id);
                     client_id = id;
 
                 })
 
-
-
-
-
             });
         }
 
 
-        function print_id() {
-            return new Promise(function (resolve) {
-
-                    socket.emit('print my id', client_id)
-                //resolve();
-
-            });
-        }
 
 
-        async function asyncCall() {
-            socket.emit('test',"start async");
-             //init();
-            socket.emit('init')
+        async function init() {
+            socket.emit('init');
             await identification();
-             //print_id();
-            socket.emit('print my id', client_id)
-
+            socket.emit('print my id', client_id);
+            socket.emit("test","initialization finish");
 
         }
 
@@ -132,23 +104,23 @@
 
 
 
-        async function updatePlayers(){
+        async function update(){
             socket.emit('test',"number of players now equal : "+Players.length);
-            socket.emit('test','asking for update');
-            socket.emit('updatePlayers request');
+            socket.emit('test','asking for update players list');
+            socket.emit('update request');
             socket.emit('test','start for response the update');
+
             await  new Promise(function (resolve) {
-
-
-
-                socket.on('updatePlayers response', function (Players_arg) {
+                socket.on('update response', function (Players_arg,Fires_arg) {
                     socket.emit('test','inside updating process');
                     resolve(Players_arg);
+                    resolve(Fires_arg);
                     Players=Players_arg;
+                    Fires=Fires_arg;
                     client_id = id;
                 })
-
             });
+
             socket.emit('test','finish update');
         }
 
@@ -163,34 +135,14 @@
 
 
         socket.emit('test',"before asyncCall");
-        asyncCall();
-//        socket.emit('test',"number of players now equal : "+Players.length);
-        updatePlayers();
-
-
-
-
-/*
-
-        Players.push(new Player());
-        Players.push(new Player());
-        Players.push(new Player());
-
-*/
-
-        // socket.emit('test',"player declared successfully");
-        //
-        //  for(var i=0 ; i<Players.length ;i++) {
-        //      socket.emit('test',Players[i].x);
-        //  }
-
+        init();
 
 
 
         canvas = document.getElementById("canvas");
         ctx = canvas.getContext("2d");
         setInterval(draw,10);
-        setInterval(updatePlayers,200);
+        setInterval(update,200);
 
 
         window.addEventListener('keydown',doKeyDown,true);

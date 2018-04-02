@@ -6,12 +6,24 @@ var io = require('socket.io')(http);
 var WIDTH = 1000; //the ground
 var HEIGHT = 400;
 var Players =[] ;
+var Fires =[];
 var map = new Map();
 function Player(){
     this.dx=5;
     this.dy=5;
     this.x=150; //initial position
     this.y=100; //initial position
+    this.score=0;
+    this.health=3;
+    this.power=2;
+}
+function fire(pid,fx,fy,fdx,fdy){
+    this.owner=pid;
+    this.x=fx;
+    this.y=fy;
+    this.dx=fdx;
+    this.dy=fdy;
+    this.power=1;
 }
 
 
@@ -50,7 +62,7 @@ nsp.on('connection',function (socket) {
 
 
     socket.on('init',function(){
-        console.log("identification request : start player number : "+Players.length);
+        console.log("identification request : start player number : "+Players.length+1);
         Players.push(new Player());
         map.set(socket.id,player_id);
         socket.emit('identification',socket.id);
@@ -63,9 +75,10 @@ nsp.on('connection',function (socket) {
     })
 
 
-
+    /**
+     * this function is responsible for changing the player position or creat new fire according to the pressed key
+     */
     socket.on('move_request',function (evtCode){
-        console.log("MMMOOOOOOOVVVVVVVEEEEE");
         var id = map.get(socket.id);
 
         console.log("keycode foe id  :"+id +" is equal : "+evtCode);
@@ -95,19 +108,42 @@ nsp.on('connection',function (socket) {
                     Players[id].x += Players[id].dx;
                 }
                 break;
+            case 32:
+                console.log("FIRE");
+                Fires.push(new fire(id,Players[id].x,Players[id].y,10,0));
         }
 
-//            socket.emit('MY position',me.x,me.y);
     })
 
 
-    socket.on('updatePlayers request',function(){
-        socket.emit('updatePlayers response',Players);
+    /**
+     * this function is responsible for updating the fires positions and send the new positions to clients
+     */
+    socket.on('update request',function(){
+
+        fireEngine();
+        socket.emit('update response',Players,Fires);
     })
 
 
 
 
 });
+
+
+/**
+ * this function is responsible for changing the fires positions in the array
+ */
+function fireEngine(){
+
+    for(var i=0 ; i<Fires.length ;i++){
+        Fires[i].x +=Fires[i].dx;
+        Fires[i].y +=Fires[i].dy;
+    }
+
+}
+
+
+
 
 
