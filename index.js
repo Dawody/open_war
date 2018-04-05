@@ -118,17 +118,6 @@ nsp.on('connection',function (socket) {
     })
 
 
-    /**
-     * this function is responsible for updating the fires positions and send the new positions to clients
-     */
-
-
-    // setInterval(function(){
-    //     fireEngine()
-    //     socket.emit('update Players',Array.from(Players))
-    //     socket.emit('update Bullets',Bullets)
-    // },1000);
-
 
     socket.on('disconnect',function(){
         Players.delete(socket.id);
@@ -139,6 +128,9 @@ nsp.on('connection',function (socket) {
 
 setInterval(function(){
     fireEngine()
+    /**
+     * emit to all sockets belong to this namespace.
+     */
     nsp.emit('update Players',Array.from(Players))
     nsp.emit('update Bullets',Bullets)
 },10);
