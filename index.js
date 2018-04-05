@@ -47,6 +47,8 @@ app.get('/',function (req,res) {
 
 var player_id=0;
 var nsp = io.of('/survive-room');
+
+
 nsp.on('connection',function (socket) {
     console.log('connected to survive-room');
 
@@ -119,22 +121,14 @@ nsp.on('connection',function (socket) {
     /**
      * this function is responsible for updating the fires positions and send the new positions to clients
      */
-    // socket.on('update request',function(){
-    //
+
+
+    // setInterval(function(){
     //     fireEngine()
     //     socket.emit('update Players',Array.from(Players))
     //     socket.emit('update Bullets',Bullets)
-    // })
+    // },1000);
 
-    //setInterval(fireEngine,100);
-
-    setInterval(function(){
-        fireEngine()
-        socket.emit('update Players',Array.from(Players))
-        socket.emit('update Bullets',Bullets)
-    },1000);
-
-    //setInterval(function(){},100);
 
     socket.on('disconnect',function(){
         Players.delete(socket.id);
@@ -143,13 +137,20 @@ nsp.on('connection',function (socket) {
 });
 
 
+setInterval(function(){
+    fireEngine()
+    nsp.emit('update Players',Array.from(Players))
+    nsp.emit('update Bullets',Bullets)
+},10);
+
+
 /**
  * this function is responsible for changing the fires positions in the array
  */
 function fireEngine(){
 
 
-    for(var i=0 ; i<Bullets.length ;i++){
+    for(var i = 0 ; i < Bullets.length ; i++){
         console.log("FIRE number : "+i+"  , owner code : "+Bullets[i].owner);
         Bullets[i].x +=Bullets[i].dx;
         Bullets[i].y +=Bullets[i].dy;
