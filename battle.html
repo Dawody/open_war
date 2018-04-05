@@ -25,8 +25,8 @@
         var ctx;
 
         var socket = io('/survive-room');
-        var Players =[] ;
-        var Fires =[];
+        var Players = new Map();
+        var Bullets =[];
 
         function circle(x,y,r){
             ctx.beginPath();
@@ -53,14 +53,17 @@
             ctx.strokeStyle= "black";
             rect(0,0,WIDTH,HEIGHT);
 
-            for(var i=0 ; i<Players.length ;i++){
+            // socket.emit("test","number of player i see in client before drawing now equal : "+Players.size);
+            for(let [pid, player] of Players){
+                //socket.emit('test','try to draw the player of id = '+pid);
                 ctx.fillStyle = "purple";
-                circle(Players[i].x,Players[i].y,10);
+                circle(player.x,player.y,10);
             }
 
-            for(var i=0 ; i<Fires.length ;i++){
+
+            for(var i=0 ; i<Bullets.length ;i++){
                 ctx.fillStyle = "purple";
-                circle(Fires[i].x,Fires[i].y,2);
+                circle(Bullets[i].x,Bullets[i].y,2);
             }
 
 
@@ -78,14 +81,11 @@
 
         function identification() {
             return new Promise(function (resolve) {
-
                 socket.on('identification', function (id) {
                     socket.emit('test',"resolving the new player id");
                     resolve(id);
-                    client_id = id;
-
+                    //client_id = id;
                 })
-
             });
         }
 
@@ -94,7 +94,17 @@
 
         async function init() {
             socket.emit('init');
-            await identification();
+//            client_id = await identification();
+
+             client_id = await  new Promise(function (resolve) {
+                socket.on('identification', function (id) {
+                    socket.emit('test',"resolving the new player id");
+                    //client_id = id; //it is write not wrong here
+                    resolve(id);
+                    //client_id = id; //it is write not wrong here
+                })
+            });
+
             socket.emit('print my id', client_id);
             socket.emit("test","initialization finish");
 
@@ -105,26 +115,57 @@
 
 
         async function update(){
-            socket.emit('test',"number of players now equal : "+Players.length);
-            socket.emit('test','asking for update players list');
+            socket.emit('test',"number of players before update : "+Players.size);
+            socket.emit('test',"number of Bullets before update : "+Bullets.length);
             socket.emit('update request');
-            socket.emit('test','start for response the update');
 
             await  new Promise(function (resolve) {
-                socket.on('update response', function (Players_arg,Fires_arg) {
-                    socket.emit('test','inside updating process');
+                socket.on('update Players', function (Players_arg) {
+                    socket.emit('test','inside updating Players');
                     resolve(Players_arg);
-                    resolve(Fires_arg);
-                    Players=Players_arg;
-                    Fires=Fires_arg;
-                    client_id = id;
+                    Players = new Map(Players_arg);
                 })
             });
+            socket.emit('test',"number of Players after updating : "+Players.size);
 
-            socket.emit('test','finish update');
+            //   Bullets = await new Promise(function (resolve){
+            //     socket.on('update Bullets',function(Bullets_arg){
+            //         socket.emit('test','inside update Bullets');
+            //         resolve(Bullets_arg);
+            //     })
+            // });
+            // socket.emit('test',"number of Bullets after updating : "+Bullets.length);
         }
 
 
+
+
+
+
+
+        async function update2(){
+            socket.emit('test',"number of players before update : "+Players.size);
+            socket.emit('test',"number of Bullets before update : "+Bullets.length);
+            //socket.emit('update request');
+
+            await  new Promise(function (resolve) {
+                socket.on('update Players', function (Players_arg) {
+                    //socket.emit('test','inside updating Players');
+                    resolve(Players_arg);
+                    Players = new Map(Players_arg);
+                })
+            });
+            socket.emit('test',"number of Players after updating : "+Players.size);
+
+               await new Promise(function (resolve){
+                socket.on('update Bullets',function(Bullets_arg){
+                    //socket.emit('test','inside update Bullets');
+                    resolve(Bullets_arg);
+                    Bullets =Bullets_arg;
+                })
+            });
+            socket.emit('test',"number of Bullets after updating : "+Bullets.length);
+        }
 
 
 
@@ -134,7 +175,6 @@
          */
 
 
-        socket.emit('test',"before asyncCall");
         init();
 
 
@@ -142,7 +182,18 @@
         canvas = document.getElementById("canvas");
         ctx = canvas.getContext("2d");
         setInterval(draw,10);
-        setInterval(update,200);
+
+        //update();
+        update2();
+        //setInterval(update,1000);
+        // for(var i=0 ;i<20 ;i++){
+        //     setTimeout(function () {
+        //         update(i);
+        //     },2000)
+        // }
+
+
+
 
 
         window.addEventListener('keydown',doKeyDown,true);

@@ -5,19 +5,20 @@ var io = require('socket.io')(http);
 
 var WIDTH = 1000; //the ground
 var HEIGHT = 400;
-var Players =[] ;
-var Fires =[];
-var map = new Map();
+
+var Bullets =[];
+var Players = new Map();
 function Player(){
     this.dx=5;
     this.dy=5;
     this.x=150; //initial position
     this.y=100; //initial position
+    this.status=1;  //1=live , 0=dead
     this.score=0;
     this.health=3;
     this.power=2;
 }
-function fire(pid,fx,fy,fdx,fdy){
+function bullet(pid,fx,fy,fdx,fdy){
     this.owner=pid;
     this.x=fx;
     this.y=fy;
@@ -50,8 +51,8 @@ nsp.on('connection',function (socket) {
     console.log('connected to survive-room');
 
     socket.on('MY position',function () {
-        id=map.get(socket.id);
-        console.log("player id = "+id+" ..   position is("+Players[id].x+","+Players[id].y+")");
+        //id=map.get(socket.id);
+        console.log("player id = "+socket.id+" ..   position is("+Players.get(socket.id).x+","+Players.get(socket.id).y+")");
 
     });
 
@@ -62,11 +63,12 @@ nsp.on('connection',function (socket) {
 
 
     socket.on('init',function(){
-        console.log("identification request : start player number : "+Players.length+1);
-        Players.push(new Player());
-        map.set(socket.id,player_id);
-        socket.emit('identification',socket.id);
-        player_id++;
+        console.log("identification request : start player number : "+(Players.size+1));
+        Players.set(socket.id,new Player);
+  //      setTimeout(function(){  //here i tried to simulate the expected slow performance of server to check the synchronization
+            socket.emit('identification',socket.id);
+//        },2000);
+
     });
 
     socket.on('print my id',function (client_id) {
@@ -79,38 +81,36 @@ nsp.on('connection',function (socket) {
      * this function is responsible for changing the player position or creat new fire according to the pressed key
      */
     socket.on('move_request',function (evtCode){
-        var id = map.get(socket.id);
-
-        console.log("keycode foe id  :"+id +" is equal : "+evtCode);
 
         switch (evtCode) {
             case 38:  /* Up arrow was pressed */
                 console.log("UP");
-                if (Players[id].y - Players[id].dy > 0){
-                    Players[id].y -= Players[id].dy;
+                if (Players.get(socket.id).y - Players.get(socket.id).dy > 0){
+                    Players.get(socket.id).y -= Players.get(socket.id).dy;
                 }
                 break;
             case 40:  /* Down arrow was pressed */
                 console.log("Down");
-                if (Players[id].y + Players[id].dy < HEIGHT){
-                    Players[id].y += Players[id].dy;
+                if (Players.get(socket.id).y + Players.get(socket.id).dy < HEIGHT){
+                    Players.get(socket.id).y += Players.get(socket.id).dy;
                 }
                 break;
             case 37:  /* Left arrow was pressed */
                 console.log("Left");
-                if (Players[id].x - Players[id].dx > 0){
-                    Players[id].x -= Players[id].dx;
+                if (Players.get(socket.id).x - Players.get(socket.id).dx > 0){
+                    Players.get(socket.id).x -= Players.get(socket.id).dx;
                 }
                 break;
             case 39:  /* Right arrow was pressed */
                 console.log("Right");
-                if (Players[id].x + Players[id].dx < WIDTH){
-                    Players[id].x += Players[id].dx;
+                if (Players.get(socket.id).x + Players.get(socket.id).dx < WIDTH){
+                    Players.get(socket.id).x += Players.get(socket.id).dx;
                 }
                 break;
             case 32:
                 console.log("FIRE");
-                Fires.push(new fire(id,Players[id].x,Players[id].y,10,0));
+                Bullets.push(new bullet(socket.id,Players.get(socket.id).x,Players.get(socket.id).y,10,0));
+
         }
 
     })
@@ -119,14 +119,26 @@ nsp.on('connection',function (socket) {
     /**
      * this function is responsible for updating the fires positions and send the new positions to clients
      */
-    socket.on('update request',function(){
+    // socket.on('update request',function(){
+    //
+    //     fireEngine()
+    //     socket.emit('update Players',Array.from(Players))
+    //     socket.emit('update Bullets',Bullets)
+    // })
 
-        fireEngine();
-        socket.emit('update response',Players,Fires);
+    //setInterval(fireEngine,100);
+
+    setInterval(function(){
+        fireEngine()
+        socket.emit('update Players',Array.from(Players))
+        socket.emit('update Bullets',Bullets)
+    },1000);
+
+    //setInterval(function(){},100);
+
+    socket.on('disconnect',function(){
+        Players.delete(socket.id);
     })
-
-
-
 
 });
 
@@ -136,11 +148,18 @@ nsp.on('connection',function (socket) {
  */
 function fireEngine(){
 
-    for(var i=0 ; i<Fires.length ;i++){
-        Fires[i].x +=Fires[i].dx;
-        Fires[i].y +=Fires[i].dy;
+
+    for(var i=0 ; i<Bullets.length ;i++){
+        console.log("FIRE number : "+i+"  , owner code : "+Bullets[i].owner);
+        Bullets[i].x +=Bullets[i].dx;
+        Bullets[i].y +=Bullets[i].dy;
+        if(Bullets[i].x <0 || Bullets[i].y<0 || Bullets[i].x>WIDTH || Bullets[i].y>HEIGHT){
+            Bullets.splice(i,1);
+            i-=1;
+        }
     }
 
+    //shot success! -> collession detection and sure that the fire owner is still alive in the Players Array.
 }
 
 
