@@ -58,13 +58,18 @@ function setup() {
     rectMode(CENTER);
     ellipseMode(RADIUS);
     frameRate(60);
-	requestAnimationFrame(draw2);
+//	requestAnimationFrame(draw2);
 }
 
 
 function fire() {
     socket.emit('fire',{});
 }
+
+/**
+ * this function draw the tank
+ * @param t
+ */
 function myshow(t) {
     push();
     // console.log(t.score);
@@ -82,6 +87,11 @@ function myshow(t) {
     // ellipse(0,0,20,20);
     pop();
 }
+
+/**
+ * this function draw the bullets
+ * @param c
+ */
 function myshow2(c) {
     push();
     fill(255,0,0);
@@ -89,6 +99,10 @@ function myshow2(c) {
     ellipse(0,0,10,10);
     pop();
 }
+
+/**
+ * this function track the move direction or fire event and send the request to server
+ */
 function update() {
     // console.log(frameRate());
     var angle = atan2(mouseY - height / 2, mouseX - width / 2);
@@ -150,7 +164,7 @@ function mousePressed()
     // backgroundColor = color(random(255), random(255), random(255));
   }
 }
-function draw2(){
+function draw(){
     // if(tank!={})
     background(222, 201, 255);
     translate(width / 2, height / 2);
@@ -189,7 +203,7 @@ function draw2(){
         died();
         // pop();
     }
-	requestAnimationFrame(draw2);
+//	requestAnimationFrame(draw2);
 }
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
