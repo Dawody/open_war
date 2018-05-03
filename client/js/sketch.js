@@ -58,6 +58,7 @@ function setup() {
     rectMode(CENTER);
     ellipseMode(RADIUS);
     frameRate(60);
+	requestAnimationFrame(draw2);
 }
 
 
@@ -124,8 +125,8 @@ function died(){
   
   // draw a circle
   // ellipseMode(CENTER);
-  stroke(0);
-  strokeWeight(5);
+  // stroke(0);
+  // strokeWeight(5);
   if(isOverCircle == true)
   {
     fill(100);
@@ -143,20 +144,30 @@ function mousePressed()
   if(isOverCircle == true && dead == true)
   {
     fill(200); 
-    cursor(ARROW);
+    // cursor(ARROW);
     socket.emit('continue_playing',{});
 
     // backgroundColor = color(random(255), random(255), random(255));
   }
 }
-function draw(){
+function draw2(){
     // if(tank!={})
     background(222, 201, 255);
     translate(width / 2, height / 2);
     scale(width/1366);
     if(Object.keys(tank).length&&!dead)
     {
+
+
+        // stroke(0,0,0);
+        // noFill();
+        
         translate(-tank.x, -tank.y);
+        push();
+        noFill();
+        stroke(255,0,0);
+        rect(0, 0, 4000, 4000);
+        pop();
         update();
         myshow(tank);
         for(var i=0;i<tanks.length;i++)
@@ -173,10 +184,12 @@ function draw(){
     }
     if(dead)
     {
-
         background(255);
+        // push();
         died();
+        // pop();
     }
+	requestAnimationFrame(draw2);
 }
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
