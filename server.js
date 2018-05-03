@@ -162,6 +162,7 @@ socket.on('continue_playing', function (data) {
             {
                 var bullet = new Bullet(tanks.get(socket.id).x + 50*Math.cos(tanks.get(socket.id).angle),tanks.get(socket.id).y + 50*Math.sin(tanks.get(socket.id).angle),tanks.get(socket.id).angle,socket.id);
                 bullets.push(bullet);
+                canFire = false;
                 // tanks.get(socket.id).canFire = false;
                 // tanks
                 setTimeout(function(){
