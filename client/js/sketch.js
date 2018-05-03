@@ -33,27 +33,33 @@ function preload()
 {
     img = loadImage("../assets/images/tank.png");
 }
-function setup() {
+async function setup() {
     createCanvas(windowWidth, windowHeight);
-    socket.on('tanks', function (data) {
-        tanks = new Map(data.tanks);
-        bullets = data.bullets;
-        // var index = tanks.findIndex(findTank);
-        if(tanks.has(socket.id))
-        {
-            tank.score = tanks.get(socket.id).score;
-            tank.x = tanks.get(socket.id).x;
-            tank.y = tanks.get(socket.id).y;
-            tank.health = tanks.get(socket.id).health;
-            tanks.delete(socket.id);
-            dead = false;
-        }
-        else
-        {
-            dead = true;
-        }
-        
-    });
+    //awiat new Promise(function (resolve){
+
+        socket.on('tanks', function (data) {
+            tanks = new Map(data.tanks);
+            bullets = data.bullets;
+            // var index = tanks.findIndex(findTank);
+            if(tanks.has(socket.id))
+            {
+                tank.score = tanks.get(socket.id).score;
+                tank.x = tanks.get(socket.id).x;
+                tank.y = tanks.get(socket.id).y;
+                tank.health = tanks.get(socket.id).health;
+                tanks.delete(socket.id);
+                dead = false;
+            }
+            else
+            {
+                dead = true;
+            }
+      //      resolve(data);
+
+        });
+
+    //});
+
     imageMode(CENTER);
     rectMode(CENTER);
     ellipseMode(RADIUS);
@@ -67,7 +73,7 @@ function fire() {
 }
 
 /**
- * this function draw the tank
+ * this function draw the tank and health bar
  * @param t
  */
 function myshow(t) {

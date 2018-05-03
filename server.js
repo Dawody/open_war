@@ -16,6 +16,9 @@ var width = 2000,height = 2000;
 
 console.log(typeof qt.QuadTree);
 
+/**
+ *we may ignore some parameters during sending the tank data to the client to speedup the transmission process
+ */
 function Tank(x, y, angle, id, health) {
     this.x = x;
     this.y = y;
