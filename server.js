@@ -8,6 +8,11 @@ var killedTanks = new Map();
 var qt = require('./quadtree');
 var width = 2000,height = 2000;
 
+
+
+/**
+ *we may ignore some parameters during sending the tank data to the client to speedup the transmission process
+ */
 function Tank(x, y, angle, id, health) {
     this.x = x;
     this.y = y;
@@ -157,12 +162,12 @@ socket.on('continue_playing', function (data) {
             {
                 var bullet = new Bullet(tanks.get(socket.id).x + 50*Math.cos(tanks.get(socket.id).angle),tanks.get(socket.id).y + 50*Math.sin(tanks.get(socket.id).angle),tanks.get(socket.id).angle,socket.id);
                 bullets.push(bullet);
-                tanks.get(socket.id).canFire = false;
+                // tanks.get(socket.id).canFire = false;
                 // tanks
                 setTimeout(function(){
                 	canFire = true;
-                    if(tanks.has(socket.id))
-                        tanks.get(socket.id).canFire=true;
+                    // if(tanks.has(socket.id))
+                    //     tanks.get(socket.id).canFire=true;
                 },200);
             }
         	// 10*Math.cos(bullets[i].angle);
