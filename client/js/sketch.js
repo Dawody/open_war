@@ -1,12 +1,18 @@
 var socket = io();
 var img;
-var tank={}, tank2;
+var tank=[], tank2;
 var tanks = [];
 var bullets = [];
 var dead = false;
 var fire = false;
 var canFire = true;
 var isOverCircle = false;
+
+
+function getTank(id) {
+    return id == socket.id;
+}
+
 
 // var vertices = [[65, 40], [48, 40], [48, 41], [47, 41], [47, 42], [46, 42], [46, 43], [45, 43], [45, 44], [44, 44], [44, 45], [43, 45], [43, 46], [42, 46], [42, 47], [41, 47], [41, 48], [39, 48], [39, 49], [37, 49], [37, 50], [34, 50], [34, 51], [29, 51], [29, 52], [24, 52], [24, 51], [19, 51], [19, 50], [16, 50], [16, 49], [14, 49], [14, 48], [12, 48], [12, 47], [11, 47], [11, 46], [10, 46], [10, 45], [9, 45], [9, 44], [8, 44], [8, 43], [7, 43], [7, 42], [6, 42], [6, 41], [5, 41], [5, 39], [4, 39], [4, 38], [3, 38], [3, 35], [2, 35], [2, 32], [1, 32], [1, 20], [2, 20], [2, 17], [3, 17], [3, 15], [4, 15], [4, 13], [5, 13], [5, 11], [6, 11], [6, 10], [7, 10], [7, 9], [8, 9], [8, 8], [9, 8], [9, 7], [10, 7], [10, 6], [11, 6], [11, 5], [13, 5], [13, 4], [14, 4], [14, 3], [16, 3], [16, 2], [19, 2], [19, 1], [34, 1], [34, 2], [36, 2], [36, 3], [39, 3], [39, 4], [40, 4], [40, 5], [42, 5], [42, 6], [43, 6], [43, 7], [44, 7], [44, 8], [45, 8], [45, 9], [46, 9], [46, 10], [47, 10], [47, 11], [48, 11], [48, 12], [65, 12]];
 // var vertices = [[-50,-50], [50,-50], [50,50], [-50,50]];
@@ -38,15 +44,20 @@ function setup() {
     socket.on('tanks', function (data) {
         tanks = new Map(data.tanks);
         bullets = data.bullets;
+        // console.log(tanks);
+        // console.log(bullets);
+        // tanks = data.tanks;
+        // bullets = data
         // var index = tanks.findIndex(findTank);
         if(tanks.has(socket.id))
         {
-            tank.score = tanks.get(socket.id).score;
-            tank.x = tanks.get(socket.id).x;
-            tank.y = tanks.get(socket.id).y;
-            tank.health = tanks.get(socket.id).health;
-            tanks.delete(socket.id);
             dead = false;
+            tank[5] = tanks.get(socket.id)[5];
+            tank[0] = tanks.get(socket.id)[0];
+            tank[2] = tanks.get(socket.id)[2];
+            tank[1] = tanks.get(socket.id)[1];
+            tank[4] = tanks.get(socket.id)[4];
+            tanks.delete(socket.id);
         }
         else
         {
@@ -58,7 +69,8 @@ function setup() {
     rectMode(CENTER);
     ellipseMode(RADIUS);
     frameRate(60);
-	requestAnimationFrame(draw2);
+    // noLoop();
+	// requestAnimationFrame(draw2);
 }
 
 
@@ -67,17 +79,17 @@ function fire() {
 }
 function myshow(t) {
     push();
-    // console.log(t.score);
-    translate(t.x, t.y);
-    // console.log(t.health);
-    var drawWidth = (t.health / 100) * 50;
+    // console.log(t[5]);
+    translate(t[0], t[1]);
+    // console.log(t[4]);
+    var drawWidth = (t[4] / 100) * 50;
     fill(0,0,0);
     rect(0,-40,drawWidth,10);
     // stroke(255,0,0);
     // noFill();
     // rect(0,-40,50,10);
     // ellipseMode(RADIUS)
-    rotate((t.angle));
+    rotate(t[2]);
     image(img, 0, 0);
     // ellipse(0,0,20,20);
     pop();
@@ -85,7 +97,7 @@ function myshow(t) {
 function myshow2(c) {
     push();
     fill(255,0,0);
-    translate(c.x, c.y);
+    translate(c[0], c[1]);
     ellipse(0,0,10,10);
     pop();
 }
@@ -130,10 +142,10 @@ function died(){
   if(isOverCircle == true)
   {
     fill(100);
-    cursor(HAND);
+    // cursor(HAND);
   } else {
     fill(200); 
-    cursor(ARROW); 
+    // cursor(ARROW); 
   }
   ellipse(0, 0, 100, 100);
   
@@ -150,22 +162,30 @@ function mousePressed()
     // backgroundColor = color(random(255), random(255), random(255));
   }
 }
-function draw2(){
+function myBackground()
+{
+    for(var i=-2000;i<=2000;i+=100)
+    {
+        push();
+        stroke(0);
+        line(-2000,i,2000,i);
+        line(i,-2000,i,2000);
+        pop();
+    }
+}
+function draw(){
     // if(tank!={})
     background(222, 201, 255);
+    // background(lerpColor(color(204, 102, 0), color(0, 102, 153), 0.1));
     translate(width / 2, height / 2);
     scale(width/1366);
     if(Object.keys(tank).length&&!dead)
     {
-
-
-        // stroke(0,0,0);
-        // noFill();
-        
-        translate(-tank.x, -tank.y);
+        translate(-tank[0], -tank[1]);
         push();
         noFill();
         stroke(255,0,0);
+        myBackground();
         rect(0, 0, 4000, 4000);
         pop();
         update();
@@ -175,8 +195,6 @@ function draw2(){
 
         for(let [pid, t] of tanks){
                 myshow(t);
-                // ctx.fillStyle = "purple";
-                // circle(player.x,player.y,10);
             }
 
         for(var i=0;i<bullets.length;i++)
@@ -185,11 +203,9 @@ function draw2(){
     if(dead)
     {
         background(255);
-        // push();
         died();
-        // pop();
     }
-	requestAnimationFrame(draw2);
+	// requestAnimationFrame(draw2);
 }
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);

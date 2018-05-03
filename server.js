@@ -6,15 +6,7 @@ var bullets = [];
 var tanks = new Map();
 var killedTanks = new Map();
 var qt = require('./quadtree');
-
-
 var width = 2000,height = 2000;
-
-
-
-
-
-console.log(typeof qt.QuadTree);
 
 function Tank(x, y, angle, id, health) {
     this.x = x;
@@ -40,24 +32,22 @@ function dist(t,b)
     y1 = t.y; y2 = b.y;
     var a = x1 - x2;
     var b = y1 - y2;
-
     var c = Math.sqrt( a*a + b*b );
     return c;
-    // return Math.sqrt(Math.pow(2,(y2-y1)))
 }
-
-
-
-function findBullet(element) {
-        return element.id == this;
-    }
-
-
 
 setInterval(function one() {
     let boundary = new qt.Rectangle(0, 0, width, height);
     let qtree = new qt.QuadTree(boundary, 4);
-    io.emit('tanks', {tanks:Array.from(tanks),bullets:bullets});
+    var result = new Map(
+    [...tanks] // step 1
+    .map(([k, v]) => [k, Object.values(v)]) // step 2
+	);
+	var result2 = Array.from(bullets, x => Object.values(x));
+	// console.log(result);
+	// console.log(result2);
+ //    console.log(bullets);
+    io.emit('tanks', {tanks:Array.from(result),bullets:result2});
 	for(var i = bullets.length - 1;i>=0;i--)
     {
         bullets[i].x+=10*Math.cos(bullets[i].angle);
@@ -71,15 +61,9 @@ setInterval(function one() {
         }
     }
     for(let [pid, t] of tanks){
-        // console.log(t.id);
-        // console.log(t.health);
-        // console.log("\n");
 
         let range = new qt.Circle(t.x, t.y, 50);
-
         let points = qtree.query(range);
-
-        // console.log(points);
         for (let point of points) {
 
             let other = point.userData;
@@ -88,30 +72,7 @@ setInterval(function one() {
                 if(dist(t,other)<=20+10)
                 {
                     t.health-=10;
-                    // let index = bullets.findIndex(findBullet);
-                    // for(var i = bullets.length - 1;i>=0;i--)
-                    // {
-                    //     if(bullets[i].id==other.id)
-                    //     {
-                    //         bullets.splice(i,1);
-                    //     }
-                    // }
-                    // console.log(dist(t,other));
-                    // console.log(point.index);
                   	bullets.splice(point.index,1);
-                    
-
-                    // var index = bullets.findIndex(findBullet,other.id);
-                    // console.log(index);
-                    // bullets.splice(index,1);
-                    // let index2 = points.findIndex(x => x.id==other.id)
-                    // console.log("omar \n")
-                    // console.log(other.id);
-                    // let 
-                    // let index2 = points.findIndex(x => x.userData.id==other.id);
-                    // console.log(index);
-                    // console.log(index2);
-                    // points.splice(index2,1);
                     if(t.health<=0)
                     {
                     	if(tanks.has(other.id))
@@ -142,22 +103,30 @@ setInterval(function one() {
 
 
 io.on('connection', function (socket) {
-    // setInterval(function(){
-    //     tanks.get(socket.id).canFire=true;
-    // },400);
+
     console.log('A user connected');
     console.log(socket.id);
+    var canFire = true;
     tanks.set(socket.id,new Tank(0, 0, 0, socket.id,100));
 
     socket.on('disconnect', function () {
         tanks.delete(socket.id);
+        killedTanks.delete(socket.id); 
+        // if(tanks.has(socket.id))
+        // {
+            
+        // }
+        // if(killedTanks.has(socket.id))
+        // {
+              
+        // }
         console.log('A user disconnected');
     });
     socket.on('move', function (data) {
         if(tanks.has(socket.id) )
         {
 
-            if(Math.abs(tanks.get(socket.id).x + data.x*4 - 22.5) < width && Math.abs(tanks.get(socket.id).y + data.y*4 + 22.5) && Math.abs(data.x) <= 1 && Math.abs(data.y) <= 1)
+            if(Math.abs(tanks.get(socket.id).x + data.x*4 - 22.5) < width && Math.abs(tanks.get(socket.id).y + data.y*4 - 22.5) < height && Math.abs(data.x) <= 1 && Math.abs(data.y) <= 1)
             {
                 tanks.get(socket.id).x += data.x*4;
                 tanks.get(socket.id).y += data.y*4;
@@ -180,17 +149,18 @@ socket.on('continue_playing', function (data) {
 
     socket.on('fire', function (data) {
 
-        if(tanks.has(socket.id)&&tanks.get(socket.id).canFire)
+        if(tanks.has(socket.id)&&canFire/*tanks.get(socket.id).canFire*/)
         {	
             let dx = tanks.get(socket.id).x + 50*Math.cos(tanks.get(socket.id).angle);
             let dy = tanks.get(socket.id).y + 50*Math.sin(tanks.get(socket.id).angle);
-            if(Math.abs(dx) - 10 < width && Math.abs(dx) - 10)
+            if(Math.abs(dx) - 10 < width && Math.abs(dy) - 10 < height)
             {
                 var bullet = new Bullet(tanks.get(socket.id).x + 50*Math.cos(tanks.get(socket.id).angle),tanks.get(socket.id).y + 50*Math.sin(tanks.get(socket.id).angle),tanks.get(socket.id).angle,socket.id);
                 bullets.push(bullet);
                 tanks.get(socket.id).canFire = false;
                 // tanks
                 setTimeout(function(){
+                	canFire = true;
                     if(tanks.has(socket.id))
                         tanks.get(socket.id).canFire=true;
                 },200);
