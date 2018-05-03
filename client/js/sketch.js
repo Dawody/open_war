@@ -52,7 +52,7 @@ function setup() {
         if(tanks.has(socket.id))
         {
             dead = false;
-            tank[5] = tanks.get(socket.id)[5];
+            tank[6] = tanks.get(socket.id)[6];
             tank[0] = tanks.get(socket.id)[0];
             tank[2] = tanks.get(socket.id)[2];
             tank[1] = tanks.get(socket.id)[1];
@@ -68,6 +68,8 @@ function setup() {
     imageMode(CENTER);
     rectMode(CENTER);
     ellipseMode(RADIUS);
+    textAlign(LEFT,TOP);
+    // textAlign(LEFT);
     frameRate(60);
     // noLoop();
 	// requestAnimationFrame(draw2);
@@ -177,15 +179,30 @@ function draw(){
     // if(tank!={})
     background(222, 201, 255);
     // background(lerpColor(color(204, 102, 0), color(0, 102, 153), 0.1));
-    translate(width / 2, height / 2);
+    push();
+    strokeWeight(4);
+    fill(0,0,255);
+    textSize(50);
     scale(width/1366);
     if(Object.keys(tank).length&&!dead)
+        text(tank[6],/*-width/2*/ + 0/*+ (-width/2) * 0.2*/,/*-height/2*/  + 0 /*+ (-height/2) * 0.2*/);
+    pop();
+    translate(width / 2, height / 2);
+    scale(width/1366);
+    
+    if(Object.keys(tank).length&&!dead)
     {
+        
+        
         translate(-tank[0], -tank[1]);
+
         push();
+        
+        // text('omar',-300,-300);
         noFill();
         stroke(255,0,0);
         myBackground();
+
         rect(0, 0, 4000, 4000);
         pop();
         update();
