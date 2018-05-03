@@ -55,14 +55,14 @@ function findBullet(element) {
 
 
 setInterval(function one() {
-    let boundary = new qt.Rectangle(0, 0, width / 2, height / 2);
+    let boundary = new qt.Rectangle(0, 0, width, height);
     let qtree = new qt.QuadTree(boundary, 4);
     io.emit('tanks', {tanks:Array.from(tanks),bullets:bullets});
 	for(var i = bullets.length - 1;i>=0;i--)
     {
         bullets[i].x+=10*Math.cos(bullets[i].angle);
         bullets[i].y+=10*Math.sin(bullets[i].angle);
-        if(Math.abs(bullets[i].x)>=2000||Math.abs(bullets[i].y)>=2000)
+        if(Math.abs(bullets[i].x) + 10>=2000||Math.abs(bullets[i].y) + 10>=2000)
             bullets.splice(i,1);
         else
         {
@@ -75,7 +75,7 @@ setInterval(function one() {
         // console.log(t.health);
         // console.log("\n");
 
-        let range = new qt.Circle(t.x, t.y, 500);
+        let range = new qt.Circle(t.x, t.y, 50);
 
         let points = qtree.query(range);
 
@@ -154,10 +154,14 @@ io.on('connection', function (socket) {
         console.log('A user disconnected');
     });
     socket.on('move', function (data) {
-        if(tanks.has(socket.id))
+        if(tanks.has(socket.id) )
         {
-            tanks.get(socket.id).x += data.x*4;
-            tanks.get(socket.id).y += data.y*4;
+
+            if(Math.abs(tanks.get(socket.id).x + data.x*4 - 22.5) < width && Math.abs(tanks.get(socket.id).y + data.y*4 + 22.5) && Math.abs(data.x) <= 1 && Math.abs(data.y) <= 1)
+            {
+                tanks.get(socket.id).x += data.x*4;
+                tanks.get(socket.id).y += data.y*4;
+            }
             tanks.get(socket.id).angle = data.angle;
         }
     });
@@ -175,20 +179,25 @@ socket.on('continue_playing', function (data) {
 
 
     socket.on('fire', function (data) {
+
         if(tanks.has(socket.id)&&tanks.get(socket.id).canFire)
         {	
-
-
+            let dx = tanks.get(socket.id).x + 50*Math.cos(tanks.get(socket.id).angle);
+            let dy = tanks.get(socket.id).y + 50*Math.sin(tanks.get(socket.id).angle);
+            if(Math.abs(dx) - 10 < width && Math.abs(dx) - 10)
+            {
+                var bullet = new Bullet(tanks.get(socket.id).x + 50*Math.cos(tanks.get(socket.id).angle),tanks.get(socket.id).y + 50*Math.sin(tanks.get(socket.id).angle),tanks.get(socket.id).angle,socket.id);
+                bullets.push(bullet);
+                tanks.get(socket.id).canFire = false;
+                // tanks
+                setTimeout(function(){
+                    if(tanks.has(socket.id))
+                        tanks.get(socket.id).canFire=true;
+                },200);
+            }
         	// 10*Math.cos(bullets[i].angle);
 			// 10*Math.sin(bullets[i].angle);
-            var bullet = new Bullet(tanks.get(socket.id).x + 50*Math.cos(tanks.get(socket.id).angle),tanks.get(socket.id).y + 50*Math.sin(tanks.get(socket.id).angle),tanks.get(socket.id).angle,socket.id);
-            bullets.push(bullet);
-            tanks.get(socket.id).canFire = false;
-            // tanks
-            setTimeout(function(){
-                if(tanks.has(socket.id))
-                    tanks.get(socket.id).canFire=true;
-            },200);
+            
         }
     });
 });
