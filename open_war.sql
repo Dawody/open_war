@@ -7,7 +7,7 @@
 -- Server version: 5.7.21
 -- PHP Version: 5.6.35
 
-DROP DATABASE IF EXISTS thunder;
+DROP DATABASE IF EXISTS open_war;
 
 CREATE DATABASE open_war;
 

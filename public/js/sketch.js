@@ -20,9 +20,10 @@ async function setup() {
     socket.on('tanks', function (data) {
         tanks = new Map(data.tanks);
         bullets = data.bullets;
+        console.log(bullets);
         if (tanks.has(socket.id)) {
             dead = false;
-            console.log(tanks.get(socket.id));
+            // console.log(tanks.get(socket.id));
             tank[6] = tanks.get(socket.id)[6];
             tank[0] = tanks.get(socket.id)[0];
             tank[2] = tanks.get(socket.id)[2];
@@ -54,7 +55,7 @@ function myshow(t) {
     fill(0, 0, 0);
     rect(0, -40, drawWidth, 10);
     if (t.id != socket.id)
-        rotate(t[2]);
+        rotate(/*t[2]*/tank.angle);
     image(img, 0, 0);
     pop();
 }

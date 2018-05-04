@@ -131,8 +131,7 @@ setInterval(function one() {
 			[...room_tanks.get(roomm)] // step 1
 				.map(([k, v]) => [k, Object.values(v)]) // step 2
 		);
-		var result2 = Array.from(room_bullets.get(roomm), x => Object.values(x));
-
+		var result2 = Array.from(room_bullets.get(roomm), x => Object.values(x).splice(0,2));
 		io.to(roomm).emit('tanks', { tanks: Array.from(result), bullets: result2 });
 		// io.to(roomm).emit('tanks', {tanks:Array.from(room_tanks.get(roomm)),bullets:room_bullets.get(roomm)});
 		for (var i = room_bullets.get(roomm).length - 1; i >= 0; i--) {
@@ -188,7 +187,7 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	socket.on('move', function (data) {
-		if (room_tanks.get(room).has(socket.id)) {
+		if (room_tanks.has(room)&&room_tanks.get(room).has(socket.id)) {
 			if (Math.abs(room_tanks.get(room).get(socket.id).x + data.x * 4) + 22.5 < width && Math.abs(room_tanks.get(room).get(socket.id).y + data.y * 4) + 22.5 < height && Math.abs(data.x) <= 1 && Math.abs(data.y) <= 1) {
 				room_tanks.get(room).get(socket.id).x += data.x * 4;
 				room_tanks.get(room).get(socket.id).y += data.y * 4;
@@ -199,7 +198,7 @@ io.sockets.on('connection', function (socket) {
 
 
 	socket.on('continue_playing', function (data) {
-		if (room_killedtanks.get(room).has(socket.id)) {
+		if (room_killedtanks.has(room)&&room_killedtanks.get(room).has(socket.id)) {
 			var mytank = room_killedtanks.get(room).get(socket.id);
 			mytank.health = 100;
 			room_tanks.get(room).set(socket.id, mytank);
@@ -209,7 +208,7 @@ io.sockets.on('connection', function (socket) {
 
 
 	socket.on('fire', function (data) {
-		if (room_tanks.get(room).has(socket.id) && canFire/*room_tanks.get(room).get(socket.id).canFire*/) {
+		if (room_tanks.has(room)&&room_tanks.get(room).has(socket.id) && canFire/*room_tanks.get(room).get(socket.id).canFire*/) {
 
 			let dx = room_tanks.get(room).get(socket.id).x + 50 * Math.cos(room_tanks.get(room).get(socket.id).angle);
 			let dy = room_tanks.get(room).get(socket.id).y + 50 * Math.sin(room_tanks.get(room).get(socket.id).angle);
@@ -228,8 +227,12 @@ io.sockets.on('connection', function (socket) {
 		}
 	});
 	socket.on('disconnect', function () {
-		store_score_player(room_tanks.get(room).get(socket.id).score,socket.request.session.pname_session);
-		store_score_room(room_tanks.get(room).get(socket.id).score,room,socket.request.session.pname_session);
+		if(room_tanks.has(room))
+		{
+			store_score_player(room_tanks.get(room).get(socket.id).score,socket.request.session.pname_session);
+			store_score_room(room_tanks.get(room).get(socket.id).score,room,socket.request.session.pname_session);
+		}
+		
 		let todelete = false;
 		if(room_tanks.has(room))
 		{
