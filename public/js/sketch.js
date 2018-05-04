@@ -55,7 +55,9 @@ function myshow(t) {
     fill(0, 0, 0);
     rect(0, -40, drawWidth, 10);
     if (t.id != socket.id)
-        rotate(/*t[2]*/tank.angle);
+        rotate(t[2]);
+    else
+        rotate(tank.angle);
     image(img, 0, 0);
     pop();
 }
