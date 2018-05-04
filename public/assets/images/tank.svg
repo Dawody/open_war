@@ -1,0 +1,22 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #a5b5a1;
+        stroke: #3c3f3b;
+      }
+
+      .cls-1, .cls-2 {
+        stroke-miterlimit: 10;
+      }
+
+      .cls-2 {
+        fill: #5eb030;
+        stroke: #666965;
+      }
+    </style>
+  </defs>
+  <title>tank4</title>
+  <rect class="cls-1" x="74.58" y="47.33" width="28.5" height="25.35"/>
+  <circle class="cls-2" cx="60" cy="60" r="22.5"/>
+</svg>
