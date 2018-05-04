@@ -650,9 +650,9 @@ function store_score_room(newscore, room, req) {
 	console.log(newscore);
 	console.log(room);
 	console.log(req);
-	var sql = 'INSERT INTO player_room (Rname,P_name_fk , P_score) VALUES (?,?,?)';
+	var sql = 'INSERT INTO player_room (Rname, P_name_fk, P_score) VALUES (?, ?, ?)';
 	// var sql = 'UPDATE  player_room SET P_score = ?  WHERE P_name_fk = ? and Rname =? ';
-	con.query(sql, [score, req, room], function (err, result, rows, fields) {
+	con.query(sql, [room, req, score], function (err, result, rows, fields) {
 		if (err) throw err;
 		console.log("new score inserted into player_room");
 
