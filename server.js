@@ -137,7 +137,7 @@ setInterval(function one() {
 		for (var i = room_bullets.get(roomm).length - 1; i >= 0; i--) {
 			room_bullets.get(roomm)[i].x += 10 * Math.cos(room_bullets.get(roomm)[i].angle);
 			room_bullets.get(roomm)[i].y += 10 * Math.sin(room_bullets.get(roomm)[i].angle);
-			if (Math.abs(room_bullets.get(roomm)[i].x) + 10 >= 2000 || Math.abs(room_bullets.get(roomm)[i].y) + 10 >= 2000)
+			if (Math.abs(room_bullets.get(roomm)[i].x) + 10 >= width || Math.abs(room_bullets.get(roomm)[i].y) + 10 >= height)
 				room_bullets.get(roomm).splice(i, 1);
 			else {
 				let point = new qt.Point(room_bullets.get(roomm)[i].x, room_bullets.get(roomm)[i].y,
@@ -227,19 +227,23 @@ io.sockets.on('connection', function (socket) {
 		}
 	});
 	socket.on('disconnect', function () {
-		if(room_tanks.has(room))
+		let todelete = false;
+		if(room_tanks.has(room)&&room_tanks.get(room).has(socket.id))
 		{
 			store_score_player(room_tanks.get(room).get(socket.id).score,socket.request.session.pname_session);
 			store_score_room(room_tanks.get(room).get(socket.id).score,room,socket.request.session.pname_session);
 		}
-		
-		let todelete = false;
 		if(room_tanks.has(room))
 		{
 			room_tanks.get(room).delete(socket.id);
 			if(room_tanks.get(room).size == 0)
 				todelete = true;
 
+		}
+		if(room_killedtanks.has(room)&&room_tanks.get(room).has(socket.id))
+		{
+			store_score_player(room_tanks.get(room).get(socket.id).score,socket.request.session.pname_session);
+			store_score_room(room_tanks.get(room).get(socket.id).score,room,socket.request.session.pname_session);
 		}
 		if(room_killedtanks.has(room))
 		{
@@ -646,8 +650,8 @@ function store_score_room(newscore, room, req) {
 	console.log(newscore);
 	console.log(room);
 	console.log(req);
-
-	var sql = 'UPDATE  player_room SET P_score = ?  WHERE P_name_fk = ? and Rname =? ';
+	var sql = 'INSERT INTO player_room (Rname,P_name_fk , P_score) VALUES (?,?,?)';
+	// var sql = 'UPDATE  player_room SET P_score = ?  WHERE P_name_fk = ? and Rname =? ';
 	con.query(sql, [score, req, room], function (err, result, rows, fields) {
 		if (err) throw err;
 		console.log("new score inserted into player_room");

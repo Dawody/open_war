@@ -7,6 +7,8 @@ var dead = false;
 var fire = false;
 var canFire = true;
 var isOverCircle = false;
+var width2 = 2000;
+var height2 = 2000;
 // var myroom = <%-JSON.stringify(myroom)%>;
 
 console.log(myroom);
@@ -117,11 +119,11 @@ function mousePressed() {
     }
 }
 function myBackground() {
-    for (var i = -2000; i <= 2000; i += 100) {
+    for (var i = -width2; i <= width2; i += 100) {
         push();
         stroke(0);
-        line(-2000, i, 2000, i);
-        line(i, -2000, i, 2000);
+        line(-width2, i, width2, i);
+        line(i, -height2, i, height2);
         pop();
     }
 }
@@ -149,7 +151,7 @@ function draw() {
         noFill();
         stroke(255, 0, 0);
         myBackground();
-        rect(0, 0, 4000, 4000);
+        rect(0, 0, 2 * width2, 2 * height2);
         pop();
         update();
         myshow(tank);
