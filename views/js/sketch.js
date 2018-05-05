@@ -7,6 +7,7 @@ var dead = false;
 var fire = false;
 var canFire = true;
 var isOverCircle = false;
+// var   
 var myroom = <%-JSON.stringify(myroom)%>;
 
 

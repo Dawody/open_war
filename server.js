@@ -22,6 +22,7 @@ var working_rooms = [];
 var room_tanks = new Map();
 var room_bullets = new Map();
 var room_killedtanks = new Map();
+var counter = 0;
 var myreq;
 var con = mysql.createConnection({
 	host: "localhost",
@@ -29,6 +30,7 @@ var con = mysql.createConnection({
 	password: "TanKwaR",
 	database: "team5db"
 });
+var width = 2000, height = 2000;
 
 con.connect(function (err) {
 	if (err) throw err;
@@ -49,8 +51,8 @@ app.set('view engine', 'ejs');
 ////intialize session
 var sessionMiddleware = session({ secret: "1gghk5hhhhhhhgchgcgc2", resave: false, saveUninitialized: false });
 
-io.use(function(socket, next) {
-    sessionMiddleware(socket.request, socket.request.res, next);
+io.use(function (socket, next) {
+	sessionMiddleware(socket.request, socket.request.res, next);
 });
 app.use(sessionMiddleware);
 //intialize cookie
@@ -88,7 +90,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-var width = 2000, height = 2000;
+
 
 /*height and width of the game*/
 
@@ -106,6 +108,7 @@ function Tank(x, y, angle, id, health) {
 function Bullet(x, y, angle, id) {
 	this.x = x;
 	this.y = y;
+	this.num = counter++;
 	this.angle = angle;
 	this.id = id;
 }
@@ -116,7 +119,6 @@ function dist(t, b) {
 	y1 = t.y; y2 = b.y;
 	var a = x1 - x2;
 	var b = y1 - y2;
-
 	var c = Math.sqrt(a * a + b * b);
 	return c;
 }
@@ -131,7 +133,7 @@ setInterval(function one() {
 			[...room_tanks.get(roomm)] // step 1
 				.map(([k, v]) => [k, Object.values(v)]) // step 2
 		);
-		var result2 = Array.from(room_bullets.get(roomm), x => Object.values(x).splice(0,2));
+		var result2 = Array.from(room_bullets.get(roomm), x => Object.values(x).splice(0, 3));
 		io.to(roomm).emit('tanks', { tanks: Array.from(result), bullets: result2 });
 		// io.to(roomm).emit('tanks', {tanks:Array.from(room_tanks.get(roomm)),bullets:room_bullets.get(roomm)});
 		for (var i = room_bullets.get(roomm).length - 1; i >= 0; i--) {
@@ -175,6 +177,7 @@ setInterval(function one() {
 io.sockets.on('connection', function (socket) {
 	var room = null;
 	var canFire = true;
+	var canMove = true;
 	// console.log(socket.request.session.pname_session);
 	console.log('A user connected');
 	console.log(socket.id);
@@ -187,18 +190,23 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	socket.on('move', function (data) {
-		if (room_tanks.has(room)&&room_tanks.get(room).has(socket.id)) {
+		if (room_tanks.has(room) && room_tanks.get(room).has(socket.id) && canMove) {
 			if (Math.abs(room_tanks.get(room).get(socket.id).x + data.x * 4) + 22.5 < width && Math.abs(room_tanks.get(room).get(socket.id).y + data.y * 4) + 22.5 < height && Math.abs(data.x) <= 1 && Math.abs(data.y) <= 1) {
 				room_tanks.get(room).get(socket.id).x += data.x * 4;
 				room_tanks.get(room).get(socket.id).y += data.y * 4;
 			}
 			room_tanks.get(room).get(socket.id).angle = data.angle;
+			setTimeout(function () {
+				canMove = true;
+				// if(room_tanks.get(room).has(socket.id))
+				//     room_tanks.get(room).get(socket.id).canFire=true;
+			}, 200);
 		}
 	});
 
 
 	socket.on('continue_playing', function (data) {
-		if (room_killedtanks.has(room)&&room_killedtanks.get(room).has(socket.id)) {
+		if (room_killedtanks.has(room) && room_killedtanks.get(room).has(socket.id)) {
 			var mytank = room_killedtanks.get(room).get(socket.id);
 			mytank.health = 100;
 			room_tanks.get(room).set(socket.id, mytank);
@@ -208,59 +216,62 @@ io.sockets.on('connection', function (socket) {
 
 
 	socket.on('fire', function (data) {
-		if (room_tanks.has(room)&&room_tanks.get(room).has(socket.id) && canFire/*room_tanks.get(room).get(socket.id).canFire*/) {
+		if (room_tanks.has(room) && room_tanks.get(room).has(socket.id) && canFire/*room_tanks.get(room).get(socket.id).canFire*/) {
 
 			let dx = room_tanks.get(room).get(socket.id).x + 50 * Math.cos(room_tanks.get(room).get(socket.id).angle);
 			let dy = room_tanks.get(room).get(socket.id).y + 50 * Math.sin(room_tanks.get(room).get(socket.id).angle);
 			if (Math.abs(dx) + 10 < width && Math.abs(dy) + 10 < height) {
-				var bullet = new Bullet(room_tanks.get(room).get(socket.id).x + 50 * Math.cos(room_tanks.get(room).get(socket.id).angle), room_tanks.get(room).get(socket.id).y + 50 * Math.sin(room_tanks.get(room).get(socket.id).angle), room_tanks.get(room).get(socket.id).angle, socket.id);
+				var level = Math.floor(room_tanks.get(room).get(socket.id).score / 5);
+				var bullet;
+				bullet = new Bullet(room_tanks.get(room).get(socket.id).x + 50 * Math.cos(room_tanks.get(room).get(socket.id).angle), room_tanks.get(room).get(socket.id).y + 50 * Math.sin(room_tanks.get(room).get(socket.id).angle), room_tanks.get(room).get(socket.id).angle, socket.id);
 				room_bullets.get(room).push(bullet);
+				if (level >= 1 && level != 2) {
+					bullet = new Bullet(room_tanks.get(room).get(socket.id).x + 50 * Math.cos(room_tanks.get(room).get(socket.id).angle - Math.PI), room_tanks.get(room).get(socket.id).y + 50 * Math.sin(room_tanks.get(room).get(socket.id).angle - Math.PI), room_tanks.get(room).get(socket.id).angle - Math.PI, socket.id);
+					room_bullets.get(room).push(bullet);
+				}
+				if (level >= 2) {
+					bullet = new Bullet(room_tanks.get(room).get(socket.id).x + 50 * Math.cos(room_tanks.get(room).get(socket.id).angle - Math.PI / 2), room_tanks.get(room).get(socket.id).y + 50 * Math.sin(room_tanks.get(room).get(socket.id).angle - Math.PI / 2), room_tanks.get(room).get(socket.id).angle - Math.PI / 2, socket.id);
+					room_bullets.get(room).push(bullet);
+					bullet = new Bullet(room_tanks.get(room).get(socket.id).x + 50 * Math.cos(room_tanks.get(room).get(socket.id).angle + Math.PI / 2), room_tanks.get(room).get(socket.id).y + 50 * Math.sin(room_tanks.get(room).get(socket.id).angle + Math.PI / 2), room_tanks.get(room).get(socket.id).angle + Math.PI / 2, socket.id);
+					room_bullets.get(room).push(bullet);
+				}
 				canFire = false;
-				// room_tanks.get(room).get(socket.id).canFire = false;
-				// tanks
 				setTimeout(function () {
 					canFire = true;
-					// if(room_tanks.get(room).has(socket.id))
-					//     room_tanks.get(room).get(socket.id).canFire=true;
 				}, 200);
 			}
 		}
 	});
 	socket.on('disconnect', function () {
 		let todelete = false;
-		if(room_tanks.has(room)&&room_tanks.get(room).has(socket.id))
-		{
-			store_score_player(room_tanks.get(room).get(socket.id).score,socket.request.session.pname_session);
-			store_score_room(room_tanks.get(room).get(socket.id).score,room,socket.request.session.pname_session);
+		if (room_tanks.has(room) && room_tanks.get(room).has(socket.id)) {
+			store_score_player(room_tanks.get(room).get(socket.id).score, socket.request.session.pname_session);
+			store_score_room(room_tanks.get(room).get(socket.id).score, room, socket.request.session.pname_session);
 		}
-		if(room_tanks.has(room))
-		{
+		if (room_tanks.has(room)) {
 			room_tanks.get(room).delete(socket.id);
-			if(room_tanks.get(room).size == 0)
+			if (room_tanks.get(room).size == 0)
 				todelete = true;
 
 		}
-		if(room_killedtanks.has(room)&&room_tanks.get(room).has(socket.id))
-		{
-			store_score_player(room_tanks.get(room).get(socket.id).score,socket.request.session.pname_session);
-			store_score_room(room_tanks.get(room).get(socket.id).score,room,socket.request.session.pname_session);
+		if (room_killedtanks.has(room) && room_tanks.get(room).has(socket.id)) {
+			store_score_player(room_tanks.get(room).get(socket.id).score, socket.request.session.pname_session);
+			store_score_room(room_tanks.get(room).get(socket.id).score, room, socket.request.session.pname_session);
 		}
-		if(room_killedtanks.has(room))
-		{
+		if (room_killedtanks.has(room)) {
 			room_killedtanks.get(room).delete(socket.id);
-			if(room_killedtanks.get(room).size == 0 && todelete === true)
-			{
+			if (room_killedtanks.get(room).size == 0 && todelete === true) {
 				room_tanks.delete(room);
 				room_killedtanks.delete(room);
-				if(room_bullets.has(room))
+				if (room_bullets.has(room))
 					room_bullets.delete(room);
 				let index = working_rooms.indexOf(room);
 				if (index > -1) {
-				working_rooms.splice(index, 1);
+					working_rooms.splice(index, 1);
 				}
 			}
 		}
-		
+		socket.leave('room');
 		console.log('A user disconnected');
 	});
 });
@@ -647,10 +658,7 @@ function store_score_player(newscore, req) {
 /////////////////////////////////////////////////////////////////
 function store_score_room(newscore, room, req) {
 	var score = parseInt(newscore);
-	console.log(newscore);
-	console.log(room);
-	console.log(req);
-	var sql = 'INSERT INTO player_room (Rname, P_name_fk, P_score) VALUES (?, ?, ?)';
+	var sql = 'INSERT INTO player_room (Rname,P_name_fk , P_score) VALUES (?,?,?)';
 	// var sql = 'UPDATE  player_room SET P_score = ?  WHERE P_name_fk = ? and Rname =? ';
 	con.query(sql, [room, req, score], function (err, result, rows, fields) {
 		if (err) throw err;

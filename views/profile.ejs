@@ -96,8 +96,8 @@
             margin-bottom: 4%;*/
             padding: 1%;
             background-color:#3296ff;
-            color: #white;
-            font-size: 20px; 
+            color: white;
+            font-size:150%; 
              border: 2px solid white;
         border-radius: 10px;
           }
@@ -114,7 +114,7 @@
    color: white; 
    margin-left:1%;
     background-color:#3296ff; 
-    width:25%; padding: 1%; height:22%; font-size: 35px;
+    width:25%; padding: 1%; height:22%; font-size:250%;
      border: 2px solid white;
         border-radius: 10px;
 }
@@ -125,8 +125,8 @@
   <script src="./libraries/p5.js"></script>
   <script src="./libraries/p5.dom.js"></script>
   <script src="./libraries/p5.sound.js"></script>
-  <!--<script src="sketch.js"></script>-->
-  <script language="javascript" type="text/javascript" src="./libraries/p5.sound.js"></script>
+  <script src="sketch.js"></script>
+    <script language="javascript" type="text/javascript" src="./libraries/p5.sound.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.dev.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.js"></script>
 </head>
@@ -136,34 +136,34 @@
     <br><br>
 		<div class="grid-container_profile">
        <div class="div_part">
-        <h1 style="color: #787878; font-size: 20px;">Username :</h1>
+        <h1 style="color: #787878; font-size: 150%;">Username :</h1>
         <div class="div_part2"> <%= username %></div>
       </div>
       <div class="div_part">
-        <h1 style="color: #787878; font-size: 20px;">Email :</h1>
+        <h1 style="color: #787878; font-size: 150%;">Email :</h1>
         <div class="div_part2"> <%= useremail %></div>
       </div>
        <div class="div_part">
-        <h1 style="color: #787878; font-size: 20px;">Latest Score :</h1>
-        <div class="div_part2"> <%= userscore %></div>
+        <h1 style="color: #787878; font-size: 120%;">Latest Score :</h1>
+        <div class="div_part2" style="margin-top: 2%;"> <%= userscore %></div>
       </div>
        <div class="div_part">
-        <h1 style="color: #787878; font-size: 20px;">High Score :</h1>
+        <h1 style="color: #787878; font-size: 130%;">High Score :</h1>
         <div class="div_part2"> <%= userhighs %></div>
         </div>
         <div class="div_part">
-        <h1 style="color: #787878; font-size: 20px;">Total Score :</h1>
+        <h1 style="color: #787878; font-size: 130%;">Total Score :</h1>
         <div class="div_part2"> <%= usertotalscore %></div>
       </div>
       </div>
       <div class="grid-container2">
-   <a href='/rooms' style='border-radius:20px; border: 2px solid black; margin-top: 30%;  margin-left:46%; height:;width:50%; font-size:25px; background-color: white; color: #787878;' class='btn btn-info' role='button'>Rooms</a>
-   <a href='/joined_rooms' style='border-radius:20px; border: 2px solid black; margin-top: 30%;  margin-left:46%; height:;width:50%; font-size:25px; background-color: white; color: #787878;' class='btn btn-info' role='button'>Joined Rooms</a>
+   <a href='/rooms' style='border-radius:20px; border: 2px solid black; margin-top: 30%;  margin-left:46%; height:;width:60%; font-size:180%; background-color: white; color: #787878;' class='btn btn-info' role='button'>Available Rooms</a>
+   <a href='/joined_rooms' style='border-radius:20px; border: 2px solid black; margin-top: 30%;  margin-left:46%; height:;width:53%; font-size:180%; background-color: white; color: #787878;' class='btn btn-info' role='button'>History Rooms</a>
  </div>
    <br><br><br>
       <form action="/logout" method="post">
         <br><br>
-        <button type='submit' style=" border-radius:20px; border: 2px solid black; width: 20%; margin-top: 3%; background-color: white; color:#787878 ;font-size:20px; hight:5%" class='btn btn-success' id="logout">Logout</button> 
+        <button type='submit' style=" border-radius:20px; border: 2px solid black; width: 20%; margin-top: 3%; background-color: white; color:#787878 ;font-size:150%; hight:5%" class='btn btn-success' id="logout">Logout</button> 
        
       </form>
        
