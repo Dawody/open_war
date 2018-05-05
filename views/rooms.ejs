@@ -124,7 +124,7 @@ div.working_rooms {
    color: white; 
    margin-left:30%;
     background-color:#3296ff; 
-    width:25%; padding: 1%; height:22%; font-size:240%;
+    width:25%; padding: 1%; height:22%; font-size:190%;
      border: 2px solid white;
         border-radius: 10px;
 }
@@ -144,10 +144,10 @@ div.working_rooms {
 	<div class="div_form_create">
       <form action="/create_room" method="post">
          <div class='form-group'> 
-      <label for='room_name'  style="color: white; font-size:200%;">Room_Name:</label>
+      <label for='room_name'  style="color: white; font-size:160%;">Room_Name:</label>
       <input type='text' style='width:50%;' class='form-control' required id='roomname' placeholder='Enter Room name' name='roomname'>
       <br><br>
-      <button type='submit' style=" border-radius:20px; border: 2px solid black; width: 30%; background-color:white; color:#787878; font-size:150%; height:10%;" class='btn btn-success' id="createroom">Create</button> 
+      <button type='submit' style=" border-radius:20px; border: 2px solid black; width: 30%; background-color:white; color:#787878; font-size:130%; height:10%;" class='btn btn-success' id="createroom">Create</button> 
     </div>      
          
      </form> 
@@ -158,16 +158,17 @@ div.working_rooms {
      
         Available Rooms
   </div>
-  <form action="joinroom" method="GET">
+  <form action="joinroom" method="POST">
    <% data.working.forEach(function(item){ %>
           <div class="joined">
-            <input type="radio" require name="joined_room" value="<%= item %>" > <%= item %>
+            <input type="radio" require name="gender" value="<%= item %>" > <%= item %>
           </div>
           <br>
        <% }); %>
       <button type='submit' style=" border-radius:20px; margin-left: 20%;margin-bottom: 2%; border: 2px solid black; width: 30%; background-color:white; color:#787878; font-size:150%; height:10%;" class='btn btn-success' id="join_room">Join_selected_room</button> 
       <br>
        </form>
-    </div>
+   </div>
+   <a href='/profile' style='border-radius:20px; border: 2px solid black; margin-top:2%;  margin-left:40%; height:;width:17%; font-size:120%; background-color: white; color: #787878;' class='btn btn-info' role='button'>Return to your profile</a>
 </body>
 </html>
