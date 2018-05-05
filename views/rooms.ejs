@@ -21,7 +21,7 @@
        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
        <style>
   .div_form_create{
-   margin-top: 3%;
+   margin-top: 1%;
     width: 30%;
     padding:1%;
 
@@ -97,7 +97,7 @@
    color: white; 
    margin-left:2%;
     background-color:#64c8aa; 
-    width:50%; padding: 1%; height:15%; font-size:25px;
+    width:50%; padding: 1%; height:15%; font-size:150%;
      border: 2px solid white;
         border-radius: 10px;
 }
@@ -112,7 +112,7 @@
 div.working_rooms {
     background-color: lightblue;
     width:60%;
-    height:400px;
+    height:300px;
     margin-left:20%;
         border: 2px solid white;
         border-radius: 30px; 
@@ -124,7 +124,7 @@ div.working_rooms {
    color: white; 
    margin-left:30%;
     background-color:#3296ff; 
-    width:25%; padding: 1%; height:22%; font-size: 35px;
+    width:25%; padding: 1%; height:22%; font-size:240%;
      border: 2px solid white;
         border-radius: 10px;
 }
@@ -135,8 +135,8 @@ div.working_rooms {
   <script src="./libraries/p5.js"></script>
   <script src="./libraries/p5.dom.js"></script>
   <script src="./libraries/p5.sound.js"></script>
-  <!--<script src="sketch.js"></script>-->
-  <script language="javascript" type="text/javascript" src="./libraries/p5.sound.js"></script>
+  <script src="sketch.js"></script>
+    <script language="javascript" type="text/javascript" src="./libraries/p5.sound.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.dev.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.js"></script>
 </head>
@@ -144,19 +144,19 @@ div.working_rooms {
 	<div class="div_form_create">
       <form action="/create_room" method="post">
          <div class='form-group'> 
-      <label for='room_name'  style="color: white; font-size: 30px;">Room_Name:</label>
+      <label for='room_name'  style="color: white; font-size:200%;">Room_Name:</label>
       <input type='text' style='width:50%;' class='form-control' required id='roomname' placeholder='Enter Room name' name='roomname'>
       <br><br>
-      <button type='submit' style=" border-radius:20px; border: 2px solid black; width: 30%; background-color:white; color:#787878; font-size:20px; height:10%;" class='btn btn-success' id="createroom">Create</button> 
+      <button type='submit' style=" border-radius:20px; border: 2px solid black; width: 30%; background-color:white; color:#787878; font-size:150%; height:10%;" class='btn btn-success' id="createroom">Create</button> 
     </div>      
          
      </form> 
   </div>
   <br><br><br>
   <div class="working_rooms">
-    <div class="work">
+    <div class="work" style=" padding :1%;width: 32%;">
      
-        Working Rooms
+        Available Rooms
   </div>
   <form action="joinroom" method="GET">
    <% data.working.forEach(function(item){ %>
@@ -165,7 +165,7 @@ div.working_rooms {
           </div>
           <br>
        <% }); %>
-      <button type='submit' style=" border-radius:20px; margin-left: 20%;margin-bottom: 2%; border: 2px solid black; width: 30%; background-color:white; color:#787878; font-size:20px; height:10%;" class='btn btn-success' id="join_room">Join_selected_room</button> 
+      <button type='submit' style=" border-radius:20px; margin-left: 20%;margin-bottom: 2%; border: 2px solid black; width: 30%; background-color:white; color:#787878; font-size:150%; height:10%;" class='btn btn-success' id="join_room">Join_selected_room</button> 
       <br>
        </form>
     </div>

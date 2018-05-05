@@ -115,8 +115,9 @@ div.working_rooms {
    margin-top:1%;
    color: white; 
    margin-left:40%;
-    background-color:#3296ff; 
-    width:15%; padding: 1%; height:22%; font-size: 35px;
+    background-color:#3296ff;
+    padding: 1%; 
+    width:20%; padding: 1%; height:22%; font-size:240%;
      border: 2px solid white;
         border-radius: 10px;
 }
@@ -125,7 +126,7 @@ div.working_rooms {
    color: white; 
    margin-left:2%;
     background-color:#64c8aa; 
-    width:50%; padding: 1%; height:15%; font-size:25px;
+    width:50%; padding: 1%; height:15%; font-size:170%;
      border: 2px solid white;
         border-radius: 10px;
 }
@@ -136,7 +137,7 @@ div.working_rooms {
   <script src="./libraries/p5.js"></script>
   <script src="./libraries/p5.dom.js"></script>
   <script src="./libraries/p5.sound.js"></script>
-  <!--<script src="sketch.js"></script>-->
+  <script src="sketch.js"></script>
     <script language="javascript" type="text/javascript" src="./libraries/p5.sound.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.dev.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.js"></script>
@@ -145,7 +146,7 @@ div.working_rooms {
 	
   
     <div class="work">
-     Joined Rooms
+     History of Rooms
   </div>
 
   <br>
@@ -156,7 +157,7 @@ div.working_rooms {
   <div class="grid-container_jrooms_con">
     <div class="grid-container_jrooms_title">
     <div class="working_rooms">
-      <div class="work" style=" width: 40%; height:20%; margin-left:2%;background-color:rgba(255, 20, 100,0.5);">Rooms</div>
+      <div class="work" style=" padding: 1%; width: 40%; height:20%; margin-left:2%;background-color:rgba(255, 20, 100,0.5);">Rooms</div>
        <% data.joined.forEach(function(item){ %>
           <div class="joined" style="width:90%;"> <%= item %>  </div>
        <% }); %>
@@ -170,7 +171,7 @@ div.working_rooms {
   
 </div>
   </div>
-  <a href='/profile' style='border-radius:20px; border: 2px solid black; margin-top:2%;  margin-left:40%; height:20%;width:15%; font-size:25px; background-color: white; color: #787878;' class='btn btn-info' role='button'>Return profile</a>
+  <a href='/profile' style='border-radius:20px; border: 2px solid black; margin-top:2%;  margin-left:40%; height:;width:17%; font-size:170%; background-color: white; color: #787878;' class='btn btn-info' role='button'>Return to your profile</a>
 <div>
 </body>
 </html>
