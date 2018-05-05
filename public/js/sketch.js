@@ -16,7 +16,7 @@ var width2 = 2000;
 var height2 = 2000;
 var tanksInterpolation = 0.35;
 var bulletsInterpolation = 0.35;
-console.log(myroom);
+// console.log(myroom);
 socket.emit('join', myroom);
 
 function preload() {
