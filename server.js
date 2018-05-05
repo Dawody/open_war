@@ -254,17 +254,17 @@ io.sockets.on('connection', function (socket) {
 				todelete = true;
 
 		}
-		if (room_killedtanks.has(room) && room_tanks.get(room).has(socket.id)) {
-			store_score_player(room_tanks.get(room).get(socket.id).score, socket.request.session.pname_session);
-			store_score_room(room_tanks.get(room).get(socket.id).score, room, socket.request.session.pname_session);
+		if (room_killedtanks.has(room) && room_killedtanks.get(room).has(socket.id)) {
+			store_score_player(room_killedtanks.get(room).get(socket.id).score, socket.request.session.pname_session);
+			store_score_room(room_killedtanks.get(room).get(socket.id).score, room, socket.request.session.pname_session);
 		}
 		if (room_killedtanks.has(room)) {
 			room_killedtanks.get(room).delete(socket.id);
 			if (room_killedtanks.get(room).size == 0 && todelete === true) {
 				room_tanks.delete(room);
 				room_killedtanks.delete(room);
-				if (room_bullets.has(room))
-					room_bullets.delete(room);
+				//if (room_bullets.has(room))
+				room_bullets.delete(room);
 				let index = working_rooms.indexOf(room);
 				if (index > -1) {
 					working_rooms.splice(index, 1);
@@ -520,23 +520,12 @@ app.post('/create_room', urlencodedParser, function (req, res) {
 			console.log(room_crated);
 			console.dir(working_rooms);
 			req.flash('success_msg', 'Your are now Created room and enter Game');
-
-			//////////////////////insert into player_room///////////////
-			var sql = "INSERT INTO player_room  (Rname,P_name_fk) VALUES (?,?)";
-			con.query(sql, [room_crated.room_name, req.session.pname_session], function (err, result) {
-				if (err) throw err;
-				console.log("1 record inserted into player_room");
-				req.flash('success_msg', 'Your are now Created room and enter Game');
-
 				var data = {
 					working: working_rooms
 				}
 				// res.render('rooms', { data });
 
 				res.redirect('/rooms');
-
-			});
-
 		});
 
 	}
@@ -586,22 +575,9 @@ app.get('/joinroom', urlencodedParser, function (req, res) {
 			if (err) throw err;
 
 			if (rows.length > 0) {
-				// console.log(req.query.joined_room);
-
-				// console.log(req.query.joined_room);
-				var sql = "INSERT INTO player_room  (Rname,P_name_fk) VALUES (?,?)";
-				con.query(sql, [room_joined.room_name, req.session.pname_session], function (err, result) {
-					if (err) throw err;
-					console.log("1 record inserted");
-					console.log(room_joined);
-					console.dir(working_rooms);
-					req.flash('success_msg', 'Your are now Created room and enter Game');
 					console.log('entering room');
 					res.render('game', {
 						myroom: room_joined.room_name
-					});
-
-
 				});
 			}
 
