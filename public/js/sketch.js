@@ -240,7 +240,7 @@ function update() {
         canFire = false;
         setTimeout(function () {
             canFire = true;
-        }, 120);
+        }, 40);
     }
 }
 function died() {

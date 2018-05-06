@@ -249,7 +249,7 @@ io.sockets.on('connection', function (socket) {
 				canMove = true;
 				// if(room_tanks.get(room).has(socket.id))
 				//     room_tanks.get(room).get(socket.id).canFire=true;
-			}, 200);
+			}, 60);
 		}
 	});
 
