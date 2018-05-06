@@ -329,7 +329,9 @@ function keyPressed() {
     if (keyCode === 84) {
         fire = !fire;
     }
-    if (keyCode === 67) {
+    var x = document.getElementById("open-war-chat");
+    var y = document.getElementById("defaultCanvas0");
+    if (keyCode === 67 && x.style.display === "none") {
         myFunction();
     }
 }
