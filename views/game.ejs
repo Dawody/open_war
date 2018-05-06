@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>open world</title>
+    <style>
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        #contenu {
+            position: relative;
+            z-index: 2;
+        }
+    </style>
+    <link href="/styles.css" rel="stylesheet" />
+</head>
+<script src="/socket.io/socket.io.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.0/p5.js"> -->
+<script src="./libraries/p5.min.js"></script>
+<script>
+    var myroom = <%-JSON.stringify(myroom) %>;
+    console.log('here');
+
+</script>
+<script src="./libraries/p5.dom.min.js"></script>
+<script src="./js/sketch.js"></script>
+
+<body>
+    <div id="open-war-chat" style="display:none">
+        <h2>Open War Chat</h2>
+        <div id="chat-window">
+            <div id="output"></div>
+            <div id="feedback"></div>
+        </div>
+        <!--<input id="handle" type="text" placeholder="Handle" />-->
+        <input id="message" type="text" placeholder="Message" />
+        <button id="send">Send</button>
+        <button onclick="myFunction()">Back</button>
+    </div>
+</body>
+
+</html>
