@@ -1,52 +1,92 @@
 var socket = io();
 var img;
-var tank={}, tank2;
+var tank = {}, tank2;
 var tanks = [];
 var bullets = [];
 var dead = false;
 var fire = false;
 var canFire = true;
 var isOverCircle = false;
-// var   
-var myroom = <%-JSON.stringify(myroom)%>;
+var handler = null;
+
+socket.emit('join', myroom);
 
 
-socket.emit('join',myroom);
+// function getTank(id) {
+//     return id == socket.id;
+// }
 
 
-function getTank(id) {
-    return id == socket.id;
+// function findTank(element) {
+//     return element.id == socket.id;
+// }
+function myFunction() {
+    var x = document.getElementById("mario-chat");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
 }
 
+var message = document.getElementById('message'),
+    // handle = document.getElementById('handle'),
+    btn = document.getElementById('send'),
+    output = document.getElementById('output'),
+    feedback = document.getElementById('feedback');
 
-function findTank(element) {
-    return element.id == socket.id;
-}
-function preload()
-{
+// Emit events
+btn.addEventListener('click', function () {
+    socket.emit('chat', {
+        message: message.value,
+        handle: handle.value
+    });
+    message.value = "";
+});
+
+message.addEventListener('keypress', function () {
+    socket.emit('typing', handle.value);
+})
+
+// Listen for events
+socket.on('chat', function (data) {
+    feedback.innerHTML = '';
+    output.innerHTML += '<p><strong>' + data.handle + ': </strong>' + data.message + '</p>';
+});
+
+socket.on('typing', function (data) {
+    feedback.innerHTML = '<p><em>' + data + ' is typing a message...</em></p>';
+});
+socket.on('typing', function (data) {
+    // feedback.innerHTML = '<p><em>' + data + ' is typing a message...</em></p>';
+    handler = data.handler;
+});
+
+
+function preload() {
     img = loadImage("../assets/images/tank.png");
 }
-async function setup() {
+function setup() {
     createCanvas(windowWidth, windowHeight);
+    var div = createDiv('').size(100, 100);
+    div.innerHTML('<h2>Mario Chat</h2><div id="chat-window"><div id="output"></div>< div id= "feedback" ></div ></div ><input id="handle" type="text" placeholder="Handle" /><input id="message" type="text" placeholder="Message" /><button id="send">Send</button>');
     socket.on('tanks', function (data) {
-        tanks = new Map(data.tanks);
-        bullets = data.bullets;
-        if(tanks.has(socket.id))
-        {
-            dead = false;
-            tank[6] = tanks.get(socket.id)[6];
-            tank[0] = tanks.get(socket.id)[0];
-            tank[2] = tanks.get(socket.id)[2];
-            tank[1] = tanks.get(socket.id)[1];
-            tank[4] = tanks.get(socket.id)[4];
-            tanks.delete(socket.id);
-        }
-        else
-        {
-            dead = true;
-        }
-        draw2();
-    });
+            tanks = new Map(data.tanks);
+            bullets = data.bullets;
+            if (tanks.has(socket.id)) {
+                dead = false;
+                tank[6] = tanks.get(socket.id)[6];
+                tank[0] = tanks.get(socket.id)[0];
+                tank[2] = tanks.get(socket.id)[2];
+                tank[1] = tanks.get(socket.id)[1];
+                tank[4] = tanks.get(socket.id)[4];
+                tanks.delete(socket.id);
+            }
+            else {
+                dead = true;
+            }
+            draw2();
+        });
     // //awiat new Promise(function (resolve){
 
     //     socket.on('tanks', function (data) {
@@ -75,17 +115,13 @@ async function setup() {
     imageMode(CENTER);
     rectMode(CENTER);
     ellipseMode(RADIUS);
-    textAlign(LEFT,TOP);
+    textAlign(LEFT, TOP);
     // textAlign(LEFT);
     frameRate(60);
     // noLoop();
-	// requestAnimationFrame(draw2);
+    // requestAnimationFrame(draw2);
 }
 
-
-function fire() {
-    socket.emit('fire',{});
-}
 
 /**
  * this function draw the tank and health bar
@@ -97,13 +133,13 @@ function myshow(t) {
     translate(t[0], t[1]);
     // console.log(t[4]);
     var drawWidth = (t[4] / 100) * 50;
-    fill(0,0,0);
-    rect(0,-40,drawWidth,10);
+    fill(0, 0, 0);
+    rect(0, -40, drawWidth, 10);
     // stroke(255,0,0);
     // noFill();
     // rect(0,-40,50,10);
     // ellipseMode(RADIUS)
-    if(t.id!=socket.id)
+    if (t.id != socket.id)
         rotate(t[2]);
     image(img, 0, 0);
     // ellipse(0,0,20,20);
@@ -116,9 +152,9 @@ function myshow(t) {
  */
 function myshow2(c) {
     push();
-    fill(255,0,0);
+    fill(255, 0, 0);
     translate(c[0], c[1]);
-    ellipse(0,0,10,10);
+    ellipse(0, 0, 10, 10);
     pop();
 }
 
@@ -128,102 +164,95 @@ function myshow2(c) {
 function update() {
     // console.log(frameRate());
     var angle = atan2(mouseY - height / 2, mouseX - width / 2);
-    var a=0,b=0;
+    var a = 0, b = 0;
     if (keyIsDown(83)) b++;
     if (keyIsDown(87)) b--;
     if (keyIsDown(65)) a--;
     if (keyIsDown(68)) a++;
-    socket.emit('move',{x:a,y:b,angle:angle});
-	tank.angle = angle;
-    if ((keyIsDown(75)||fire===true) && canFire === true) {
+    socket.emit('move', { x: a, y: b, angle: angle });
+    tank.angle = angle;
+    if ((keyIsDown(75) || fire === true) && canFire === true) {
         console.log('fire');
-        socket.emit('fire',{});
+        socket.emit('fire', {});
         canFire = false;
-        setTimeout(function(){
-                canFire = true;
-            }, 120);
+        setTimeout(function () {
+            canFire = true;
+        }, 120);
     }
 }
-function died(){
+function died() {
 
-  // background(backgroundColor);
- 
-  // get distance between mouse and circle
-  var distance = dist(mouseX - (width / 2), mouseY - ( height / 2), 0, 0); 
-  
-  // if the distance is less than the circle's radius
-  if(distance < 100 * (width/1366))
-  {
-    isOverCircle = true;
-  } else {
-    isOverCircle = false;
-  }
-  
-  // draw a circle
-  // ellipseMode(CENTER);
-  // stroke(0);
-  // strokeWeight(5);
-  if(isOverCircle == true)
-  {
-    fill(100);
-    // cursor(HAND);
-  } else {
-    fill(200); 
-    // cursor(ARROW); 
-  }
-  ellipse(0, 0, 100, 100);
-  
-}
- 
-function mousePressed()
-{
-  if(isOverCircle == true && dead == true)
-  {
-    fill(200); 
-    // cursor(ARROW);
-    socket.emit('continue_playing',{});
+    // background(backgroundColor);
 
-    // backgroundColor = color(random(255), random(255), random(255));
-  }
+    // get distance between mouse and circle
+    var distance = dist(mouseX - (width / 2), mouseY - (height / 2), 0, 0);
+
+    // if the distance is less than the circle's radius
+    if (distance < 100 * (width / 1366)) {
+        isOverCircle = true;
+    } else {
+        isOverCircle = false;
+    }
+
+    // draw a circle
+    // ellipseMode(CENTER);
+    // stroke(0);
+    // strokeWeight(5);
+    if (isOverCircle == true) {
+        fill(100);
+        // cursor(HAND);
+    } else {
+        fill(200);
+        // cursor(ARROW); 
+    }
+    ellipse(0, 0, 100, 100);
+
 }
-function myBackground()
-{
-    for(var i=-2000;i<=2000;i+=100)
-    {
+
+function mousePressed() {
+    if (isOverCircle == true && dead == true) {
+        fill(200);
+        // cursor(ARROW);
+        socket.emit('continue_playing', {});
+
+        // backgroundColor = color(random(255), random(255), random(255));
+    }
+}
+function myBackground() {
+    for (var i = -2000; i <= 2000; i += 100) {
         push();
         stroke(0);
-        line(-2000,i,2000,i);
-        line(i,-2000,i,2000);
+        line(-2000, i, 2000, i);
+        line(i, -2000, i, 2000);
         pop();
     }
 }
-function draw2(){
+function draw2() {
     // if(tank!={})
     push();
     background(222, 201, 255);
     // background(lerpColor(color(204, 102, 0), color(0, 102, 153), 0.1));
     push();
     strokeWeight(4);
-    fill(0,0,255);
+    fill(0, 0, 255);
     textSize(50);
-    scale(width/1366);
-    if(Object.keys(tank).length&&!dead)
+    scale(width / 1366);
+    if (Object.keys(tank).length && !dead)
         text(tank[6],/*-width/2*/ + 0/*+ (-width/2) * 0.2*/,/*-height/2*/  + 0 /*+ (-height/2) * 0.2*/);
     pop();
     translate(width / 2, height / 2);
-    scale(width/1366);
-    
-    if(Object.keys(tank).length&&!dead)
-    {
-        
-        
+    scale(width / 1366);
+
+    if (Object.keys(tank).length && !dead) {
+
+
         translate(-tank[0], -tank[1]);
 
         push();
-        
+
         // text('omar',-300,-300);
         noFill();
-        stroke(255,0,0);
+        stroke(255, 0, 0);
         myBackground();
 
         rect(0, 0, 4000, 4000);
@@ -233,27 +262,29 @@ function draw2(){
         // for(var i=0;i<tanks.length;i++)
         //     myshow(tanks[i]);
 
-        for(let [pid, t] of tanks){
-                myshow(t);
-            }
+        for (let [pid, t] of tanks) {
+            myshow(t);
+        }
 
-        for(var i=0;i<bullets.length;i++)
+        for (var i = 0; i < bullets.length; i++)
             myshow2(bullets[i]);
     }
-    if(dead)
-    {
+    if (dead) {
         background(255);
         died();
     }
     pop();
 
-//	requestAnimationFrame(draw2);
+    //	requestAnimationFrame(draw2);
 }
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
 }
 function keyPressed() {
-  if (keyCode === 84) {
-    fire = !fire;
-  }
+    if (keyCode === 84) {
+        fire = !fire;
+    }
+    if (keyCode === 67) {
+        myFunction();
+    }
 }

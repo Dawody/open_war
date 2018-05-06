@@ -181,9 +181,25 @@ io.sockets.on('connection', function (socket) {
 	// console.log(socket.request.session.pname_session);
 	console.log('A user connected');
 	console.log(socket.id);
+
+
+	socket.on('chat', function (data) {
+		// console.log(data);
+		io.sockets.emit('chat', data);
+	});
+
+	// Handle typing event
+	// socket.on('typing', function (data) {
+	// 	console.log(data);
+	// 	socket.broadcast.emit('typing', data);
+	// });
+
+
 	socket.on("join", function (room_id) {
 		if (room_tanks.has(room_id)) {
 			room = room_id
+			// console.log(socket.request.session.pname_session);
+			socket.emit('handler', { handler: socket.request.session.pname_session });
 			socket.join(room_id);
 			room_tanks.get(room).set(socket.id, new Tank(0, 0, 0, socket.id, 100));
 		}
@@ -254,17 +270,18 @@ io.sockets.on('connection', function (socket) {
 				todelete = true;
 
 		}
-		if (room_killedtanks.has(room) && room_tanks.get(room).has(socket.id)) {
-			store_score_player(room_tanks.get(room).get(socket.id).score, socket.request.session.pname_session);
-			store_score_room(room_tanks.get(room).get(socket.id).score, room, socket.request.session.pname_session);
+		if (room_killedtanks.has(room) && room_killedtanks.get(room).has(socket.id)) {
+			store_score_player(room_killedtanks.get(room).get(socket.id).score, socket.request.session.pname_session);
+			store_score_room(room_killedtanks.get(room).get(socket.id).score, room, socket.request.session.pname_session);
 		}
 		if (room_killedtanks.has(room)) {
 			room_killedtanks.get(room).delete(socket.id);
 			if (room_killedtanks.get(room).size == 0 && todelete === true) {
 				room_tanks.delete(room);
 				room_killedtanks.delete(room);
-				if (room_bullets.has(room))
-					room_bullets.delete(room);
+				room_bullets.delete(room);
+				// if (room_bullets.has(room))
+				// 	room_bullets.delete(room);
 				let index = working_rooms.indexOf(room);
 				if (index > -1) {
 					working_rooms.splice(index, 1);
