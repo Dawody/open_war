@@ -146,12 +146,12 @@ setInterval(function one() {
 		let boundary = new qt.Rectangle(0, 0, width, height);
 		let qtree = new qt.QuadTree(boundary, 4);
 
-		var result = new Map(
+		/*var result = new Map(
 			[...room_tanks.get(roomm)] // step 1
 				.map(([k, v]) => [k, Object.values(v)]) // step 2
 		);
 		var result2 = Array.from(room_bullets.get(roomm), x => Object.values(x).splice(0, 3));
-		io.to(roomm).emit('tanks', { tanks: Array.from(result), bullets: result2 });
+		io.to(roomm).emit('tanks', { tanks: Array.from(result), bullets: result2 });*/
 		// io.to(roomm).emit('tanks', {tanks:Array.from(room_tanks.get(roomm)),bullets:room_bullets.get(roomm)});
 		for (var i = room_bullets.get(roomm).length - 1; i >= 0; i--) {
 			room_bullets.get(roomm)[i].x += 10 * Math.cos(room_bullets.get(roomm)[i].angle);
@@ -205,6 +205,29 @@ setInterval(function one() {
 		}
 	}
 }, 1000 / 60);
+
+
+
+
+
+setInterval(function one() {
+
+	for (let [roomm, _] of room_tanks) {
+
+		var result = new Map(
+			[...room_tanks.get(roomm)] // step 1
+				.map(([k, v]) => [k, Object.values(v)]) // step 2
+		);
+		var result2 = Array.from(room_bullets.get(roomm), x => Object.values(x).splice(0, 3));
+		io.to(roomm).emit('tanks', { tanks: Array.from(result), bullets: result2 });
+		// io.to(roomm).emit('tanks', {tanks:Array.from(room_tanks.get(roomm)),bullets:room_bullets.get(roomm)});
+	}
+}, 1000 / 60);
+
+
+
+
+
 
 
 io.sockets.on('connection', function (socket) {
