@@ -158,10 +158,10 @@ div.working_rooms {
      
         Available Rooms
   </div>
-  <form action="joinroom" method="POST">
+  <form action="/joinroom" method="GET">
    <% data.working.forEach(function(item){ %>
           <div class="joined">
-            <input type="radio" require name="gender" value="<%= item %>" > <%= item %>
+            <input type="radio" require name="joined_room" value="<%= item %>" > <%= item %>
           </div>
           <br>
        <% }); %>
