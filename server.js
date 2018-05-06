@@ -19,6 +19,7 @@ var engines = require('consolidate');
 var socket = require('socket.io');
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 var working_rooms = [];
+var deleted_Rooms = new Map();
 var room_tanks = new Map();
 var room_bullets = new Map();
 var room_killedtanks = new Map();
@@ -32,11 +33,33 @@ var con = mysql.createConnection({
 });
 var width = 2000, height = 2000;
 
-con.connect(function (err) {
-	if (err) throw err;
-	console.log("Connected!");
+var sqlite3 = require('sqlite3').verbose();
+var file = require('path').resolve(__dirname, './open_war.dp');
+// console.log(file);
 
+var con = new sqlite3.Database(file, sqlite3.OPEN_READWRITE, (err) => {
+  if (err) {
+    console.error(err.message);
+  }
+  console.log('Connected to the open_war database.');
 });
+
+
+con.serialize(function () {
+    con.all("select name from sqlite_master where type='table'", function (err, tables) {
+        console.log(tables);
+    });
+});
+
+// var con = new sqlite3.Database(file);
+
+
+
+// con.connect(function (err) {
+// 	if (err) throw err;
+// 	console.log("Connected!");
+
+// });
 
 var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 38371,
 	ip = process.env.IP || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0';
@@ -170,6 +193,23 @@ setInterval(function one() {
 				}
 			}
 		}
+
+
+		if(deleted_Rooms.has(roomm)&&deleted_Rooms.get(roomm)==true)
+			{
+				console.log("to_delete");
+				room_tanks.delete(roomm);
+				room_killedtanks.delete(roomm);
+				room_bullets.delete(roomm);
+				// room_bullets.delete(room);
+				// if (room_bullets.has(room))
+					
+				let index = working_rooms.indexOf(roomm);
+				console.log(index);
+				if (index > -1) {
+					working_rooms.splice(index, 1);
+				}
+			}	
 	}
 }, 1000 / 60);
 
@@ -277,15 +317,17 @@ io.sockets.on('connection', function (socket) {
 		if (room_killedtanks.has(room)) {
 			room_killedtanks.get(room).delete(socket.id);
 			if (room_killedtanks.get(room).size == 0 && todelete === true) {
-				room_tanks.delete(room);
-				room_killedtanks.delete(room);
-				room_bullets.delete(room);
+				deleted_Rooms.set(room,true);
+				console.log('set deleted');
+				// room_tanks.delete(room);
+				// room_killedtanks.delete(room);
+				// // room_bullets.delete(room);
 				// if (room_bullets.has(room))
 				// 	room_bullets.delete(room);
-				let index = working_rooms.indexOf(room);
-				if (index > -1) {
-					working_rooms.splice(index, 1);
-				}
+				// let index = working_rooms.indexOf(room);
+				// if (index > -1) {
+				// 	working_rooms.splice(index, 1);
+				// }
 			}
 		}
 		socket.leave('room');
@@ -367,7 +409,7 @@ app.post('/Sign_up', urlencodedParser, function (req, res) {
 	}
 	else {
 		var sql = 'SELECT COUNT(*) AS namecount FROM player WHERE Pname = ?'
-		con.query(sql, [data.uname], function (err, rows, fields) {
+		con.all(sql, [data.uname], function (err, rows, fields) {
 			if (err) throw err;
 			console.log(rows[0].namecount);
 
@@ -376,7 +418,7 @@ app.post('/Sign_up', urlencodedParser, function (req, res) {
 			}
 			else {
 				var sql = "INSERT INTO player  (Pname,Pemail,Ppassword) VALUES (?,?,?)";
-				con.query(sql, [data.uname, data.uemail, data.upass], function (err, result) {
+				con.all(sql, [data.uname, data.uemail, data.upass], function (err, result) {
 					if (err) throw err;
 					console.log("1 record inserted");
 					console.log(data);
@@ -415,7 +457,7 @@ app.post('/login', urlencodedParser, function (req, res) {
 
 	else {
 		var sql = 'SELECT * FROM player WHERE Pname = ? and Ppassword= ?';
-		con.query(sql, [data.uname, data.upass], function (err, rows, fields) {
+		con.all(sql, [data.uname, data.upass], function (err, rows, fields) {
 			if (err) throw err;
 
 			if (rows.length === 0) {
@@ -449,7 +491,7 @@ app.get('/profile', function (req, res) {
 	console.log(req.session.pscore_session);
 	if (typeof req.session.pname_session !== "undefined" && typeof req.session.ppass_session !== "undefined") {
 		var sql = 'SELECT * FROM player WHERE Pname = ?';
-		con.query(sql, [req.session.pname_session], function (err, rows, fields) {
+		con.all(sql, [req.session.pname_session], function (err, rows, fields) {
 			if (err) throw err;
 			var score = rows[0].P_latest_score;
 			var highscore = rows[0].P_high_score;
@@ -529,9 +571,10 @@ app.post('/create_room', urlencodedParser, function (req, res) {
 		room_tanks.set(room_crated.room_name, new Map());
 		room_bullets.set(room_crated.room_name, []);
 		room_killedtanks.set(room_crated.room_name, new Map());
+		deleted_Rooms.set(room_crated,false);
 
-		var sql = "INSERT IGNORE INTO room  (Room_name) VALUES (?)";
-		con.query(sql, [room_crated.room_name], function (err, result) {
+		var sql = "INSERT OR IGNORE INTO room  (Room_name) VALUES (?)";
+		con.all(sql, [room_crated.room_name], function (err, result) {
 			if (err) throw err;
 			console.log("1 record inserted into room");
 			console.log(room_crated);
@@ -554,7 +597,7 @@ app.get('/joined_rooms', function (req, res) {
 	console.log(req.session.pscore_session);
 	if (typeof req.session.pname_session !== "undefined" && typeof req.session.ppass_session !== "undefined") {
 		var sql = 'SELECT * FROM player_room WHERE P_name_fk = ?';
-		con.query(sql, [req.session.pname_session], function (err, rows, fields) {
+		con.all(sql, [req.session.pname_session], function (err, rows, fields) {
 			if (err) throw err;
 			var count = rows.length;
 			var i;
@@ -588,7 +631,7 @@ app.get('/joinroom', urlencodedParser, function (req, res) {
 	if (working_rooms.indexOf(req.query.joined_room) > -1) {
 		// console.log(req.query.joined_room);
 		var sql = 'SELECT * FROM room WHERE Room_name = ?';
-		con.query(sql, [room_joined.room_name], function (err, rows, fields) {
+		con.all(sql, [room_joined.room_name], function (err, rows, fields) {
 			if (err) throw err;
 
 			if (rows.length > 0) {
@@ -622,14 +665,14 @@ function store_score_player(newscore, req) {
 	console.log(newscore);
 	console.log(req);
 	var sql = 'SELECT * FROM player WHERE Pname = ?';
-	con.query(sql, [req], function (err, rows, fields) {
+	con.all(sql, [req], function (err, rows, fields) {
 		if (err) throw err;
 		var highscore = rows[0].P_high_score;
 		var totalscore = rows[0].P_total_score;
 		totalscore = totalscore + score;
 		if (score > highscore) {
 			var sql = 'UPDATE  player SET P_latest_score = ?,P_high_score = ?, P_total_score = ?  WHERE Pname = ? ';
-			con.query(sql, [score, score, totalscore, req], function (err, result, rows, fields) {
+			con.all(sql, [score, score, totalscore, req], function (err, result, rows, fields) {
 				if (err) throw err;
 				console.log("new score inserted");
 
@@ -637,7 +680,7 @@ function store_score_player(newscore, req) {
 		}
 		else {
 			var sql = 'UPDATE  player SET P_latest_score = ?,P_high_score = ?, P_total_score = ?  WHERE Pname = ? ';
-			con.query(sql, [score, highscore, totalscore, req], function (err, result, rows, fields) {
+			con.all(sql, [score, highscore, totalscore, req], function (err, result, rows, fields) {
 				if (err) throw err;
 				console.log("new score inserted");
 			});
@@ -653,7 +696,7 @@ function store_score_room(newscore, room, req) {
 	var score = parseInt(newscore);
 	var sql = 'INSERT INTO player_room (Rname,P_name_fk , P_score) VALUES (?,?,?)';
 	// var sql = 'UPDATE  player_room SET P_score = ?  WHERE P_name_fk = ? and Rname =? ';
-	con.query(sql, [room, req, score], function (err, result, rows, fields) {
+	con.all(sql, [room, req, score], function (err, result, rows, fields) {
 		if (err) throw err;
 		console.log("new score inserted into player_room");
 
