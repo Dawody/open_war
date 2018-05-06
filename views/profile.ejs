@@ -71,7 +71,7 @@
             background-color:rgba(60, 6, 50,0.5);
             margin-top: 2%;
             width: 80%;
-            height: 70%;
+            height: 50%;
             padding: 2%;
              border: 2px solid white;
         border-radius: 30px; 
@@ -114,7 +114,7 @@
    color: white; 
    margin-left:1%;
     background-color:#3296ff; 
-    width:25%; padding: 1%; height:22%; font-size:250%;
+    width:25%; padding: 1%; height:22%; font-size:180%;
      border: 2px solid white;
         border-radius: 10px;
 }
@@ -132,7 +132,7 @@
 </head>
 <body>
 	<div class="profile_div">
-    <div class="work">Your Profile InFo</div>
+    <div class="work">Your Profile Info</div>
     <br><br>
 		<div class="grid-container_profile">
        <div class="div_part">
@@ -144,23 +144,22 @@
         <div class="div_part2"> <%= useremail %></div>
       </div>
        <div class="div_part">
-        <h1 style="color: #787878; font-size: 120%;">Latest Score :</h1>
+        <h1 style="color: #787878; font-size: 100%;">Latest Score :</h1>
         <div class="div_part2" style="margin-top: 2%;"> <%= userscore %></div>
       </div>
        <div class="div_part">
-        <h1 style="color: #787878; font-size: 130%;">High Score :</h1>
+        <h1 style="color: #787878; font-size: 100%;">High Score :</h1>
         <div class="div_part2"> <%= userhighs %></div>
         </div>
         <div class="div_part">
-        <h1 style="color: #787878; font-size: 130%;">Total Score :</h1>
+        <h1 style="color: #787878; font-size: 100%;">Total Score :</h1>
         <div class="div_part2"> <%= usertotalscore %></div>
       </div>
       </div>
       <div class="grid-container2">
-   <a href='/rooms' style='border-radius:20px; border: 2px solid black; margin-top: 30%;  margin-left:46%; height:;width:60%; font-size:180%; background-color: white; color: #787878;' class='btn btn-info' role='button'>Available Rooms</a>
-   <a href='/joined_rooms' style='border-radius:20px; border: 2px solid black; margin-top: 30%;  margin-left:46%; height:;width:53%; font-size:180%; background-color: white; color: #787878;' class='btn btn-info' role='button'>History Rooms</a>
+   <a href='/rooms' style='border-radius:20px; border: 2px solid black; margin-top: 30%;  margin-left:46%; height:;width:60%; font-size:140%; background-color: white; color: #787878;' class='btn btn-info' role='button'>Available Rooms</a>
+   <a href='/joined_rooms' style='border-radius:20px; border: 2px solid black; margin-top: 30%;  margin-left:46%; height:;width:53%; font-size:140%; background-color: white; color: #787878;' class='btn btn-info' role='button'>History Rooms</a>
  </div>
-   <br><br><br>
       <form action="/logout" method="post">
         <br><br>
         <button type='submit' style=" border-radius:20px; border: 2px solid black; width: 20%; margin-top: 3%; background-color: white; color:#787878 ;font-size:150%; hight:5%" class='btn btn-success' id="logout">Logout</button> 

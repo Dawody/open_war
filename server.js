@@ -26,9 +26,9 @@ var counter = 0;
 var myreq;
 var con = mysql.createConnection({
 	host: "localhost",
-	user: "root",
-	password: "",
-	database: "open_war"
+	user: "team5",
+	password: "TanKwaR",
+	database: "team5db"
 });
 var width = 2000, height = 2000;
 
@@ -38,7 +38,7 @@ con.connect(function (err) {
 
 });
 
-var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
+var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 38371,
 	ip = process.env.IP || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0';
 
 http.listen(port, ip, function () {
@@ -366,7 +366,7 @@ app.post('/Sign_up', urlencodedParser, function (req, res) {
 		res.redirect('Sign_up_error.html');
 	}
 	else {
-		var sql = 'SELECT COUNT(*) AS namecount FROM Player WHERE Pname = ?'
+		var sql = 'SELECT COUNT(*) AS namecount FROM player WHERE Pname = ?'
 		con.query(sql, [data.uname], function (err, rows, fields) {
 			if (err) throw err;
 			console.log(rows[0].namecount);
@@ -375,7 +375,7 @@ app.post('/Sign_up', urlencodedParser, function (req, res) {
 				res.redirect('Sign_up_error.html');
 			}
 			else {
-				var sql = "INSERT INTO Player  (Pname,Pemail,Ppassword) VALUES (?,?,?)";
+				var sql = "INSERT INTO player  (Pname,Pemail,Ppassword) VALUES (?,?,?)";
 				con.query(sql, [data.uname, data.uemail, data.upass], function (err, result) {
 					if (err) throw err;
 					console.log("1 record inserted");
@@ -414,7 +414,7 @@ app.post('/login', urlencodedParser, function (req, res) {
 	}
 
 	else {
-		var sql = 'SELECT * FROM Player WHERE Pname = ? and Ppassword= ?';
+		var sql = 'SELECT * FROM player WHERE Pname = ? and Ppassword= ?';
 		con.query(sql, [data.uname, data.upass], function (err, rows, fields) {
 			if (err) throw err;
 
@@ -448,7 +448,7 @@ app.post('/login', urlencodedParser, function (req, res) {
 app.get('/profile', function (req, res) {
 	console.log(req.session.pscore_session);
 	if (typeof req.session.pname_session !== "undefined" && typeof req.session.ppass_session !== "undefined") {
-		var sql = 'SELECT * FROM Player WHERE Pname = ?';
+		var sql = 'SELECT * FROM player WHERE Pname = ?';
 		con.query(sql, [req.session.pname_session], function (err, rows, fields) {
 			if (err) throw err;
 			var score = rows[0].P_latest_score;
@@ -537,23 +537,12 @@ app.post('/create_room', urlencodedParser, function (req, res) {
 			console.log(room_crated);
 			console.dir(working_rooms);
 			req.flash('success_msg', 'Your are now Created room and enter Game');
-
-			//////////////////////insert into player_room///////////////
-			var sql = "INSERT INTO player_room  (Rname,P_name_fk) VALUES (?,?)";
-			con.query(sql, [room_crated.room_name, req.session.pname_session], function (err, result) {
-				if (err) throw err;
-				console.log("1 record inserted into player_room");
-				req.flash('success_msg', 'Your are now Created room and enter Game');
-
 				var data = {
 					working: working_rooms
 				}
 				// res.render('rooms', { data });
 
 				res.redirect('/rooms');
-
-			});
-
 		});
 
 	}
@@ -603,22 +592,9 @@ app.get('/joinroom', urlencodedParser, function (req, res) {
 			if (err) throw err;
 
 			if (rows.length > 0) {
-				// console.log(req.query.joined_room);
-
-				// console.log(req.query.joined_room);
-				var sql = "INSERT INTO player_room  (Rname,P_name_fk) VALUES (?,?)";
-				con.query(sql, [room_joined.room_name, req.session.pname_session], function (err, result) {
-					if (err) throw err;
-					console.log("1 record inserted");
-					console.log(room_joined);
-					console.dir(working_rooms);
-					req.flash('success_msg', 'Your are now Created room and enter Game');
 					console.log('entering room');
 					res.render('game', {
 						myroom: room_joined.room_name
-					});
-
-
 				});
 			}
 
@@ -643,14 +619,16 @@ app.get('/joinroom', urlencodedParser, function (req, res) {
 
 function store_score_player(newscore, req) {
 	var score = parseInt(newscore);
-	var sql = 'SELECT * FROM Player WHERE Pname = ?';
+	console.log(newscore);
+	console.log(req);
+	var sql = 'SELECT * FROM player WHERE Pname = ?';
 	con.query(sql, [req], function (err, rows, fields) {
 		if (err) throw err;
 		var highscore = rows[0].P_high_score;
 		var totalscore = rows[0].P_total_score;
 		totalscore = totalscore + score;
 		if (score > highscore) {
-			var sql = 'UPDATE  Player SET P_latest_score = ?,P_high_score = ?, P_total_score = ?  WHERE Pname = ? ';
+			var sql = 'UPDATE  player SET P_latest_score = ?,P_high_score = ?, P_total_score = ?  WHERE Pname = ? ';
 			con.query(sql, [score, score, totalscore, req], function (err, result, rows, fields) {
 				if (err) throw err;
 				console.log("new score inserted");
@@ -658,7 +636,7 @@ function store_score_player(newscore, req) {
 			});
 		}
 		else {
-			var sql = 'UPDATE  Player SET P_latest_score = ?,P_high_score = ?, P_total_score = ?  WHERE Pname = ? ';
+			var sql = 'UPDATE  player SET P_latest_score = ?,P_high_score = ?, P_total_score = ?  WHERE Pname = ? ';
 			con.query(sql, [score, highscore, totalscore, req], function (err, result, rows, fields) {
 				if (err) throw err;
 				console.log("new score inserted");

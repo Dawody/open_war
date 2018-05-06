@@ -7,11 +7,11 @@
 -- Server version: 5.7.21
 -- PHP Version: 5.6.35
 
-DROP DATABASE IF EXISTS open_war;
+DROP DATABASE IF EXISTS team5db;
 
-CREATE DATABASE open_war;
+CREATE DATABASE team5db;
 
-use open_war;
+use team5db;
 
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -26,7 +26,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `open_war`
+-- Database: `team5db`
 --
 
 -- --------------------------------------------------------
