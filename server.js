@@ -25,12 +25,6 @@ var room_bullets = new Map();
 var room_killedtanks = new Map();
 var counter = 0;
 var myreq;
-var con = mysql.createConnection({
-	host: "localhost",
-	user: "team5",
-	password: "TanKwaR",
-	database: "team5db"
-});
 var width = 2000, height = 2000;
 
 var sqlite3 = require('sqlite3').verbose();
@@ -38,17 +32,17 @@ var file = require('path').resolve(__dirname, './open_war.dp');
 // console.log(file);
 
 var con = new sqlite3.Database(file, sqlite3.OPEN_READWRITE, (err) => {
-  if (err) {
-    console.error(err.message);
-  }
-  console.log('Connected to the open_war database.');
+	if (err) {
+		console.error(err.message);
+	}
+	console.log('Connected to the open_war database.');
 });
 
 
 con.serialize(function () {
-    con.all("select name from sqlite_master where type='table'", function (err, tables) {
-        console.log(tables);
-    });
+	con.all("select name from sqlite_master where type='table'", function (err, tables) {
+		console.log(tables);
+	});
 });
 
 // var con = new sqlite3.Database(file);
@@ -195,21 +189,20 @@ setInterval(function one() {
 		}
 
 
-		if(deleted_Rooms.has(roomm)&&deleted_Rooms.get(roomm)==true)
-			{
-				console.log("to_delete");
-				room_tanks.delete(roomm);
-				room_killedtanks.delete(roomm);
-				room_bullets.delete(roomm);
-				// room_bullets.delete(room);
-				// if (room_bullets.has(room))
-					
-				let index = working_rooms.indexOf(roomm);
-				console.log(index);
-				if (index > -1) {
-					working_rooms.splice(index, 1);
-				}
-			}	
+		if (deleted_Rooms.has(roomm) && deleted_Rooms.get(roomm) == true) {
+			console.log("to_delete");
+			room_tanks.delete(roomm);
+			room_killedtanks.delete(roomm);
+			room_bullets.delete(roomm);
+			// room_bullets.delete(room);
+			// if (room_bullets.has(room))
+
+			let index = working_rooms.indexOf(roomm);
+			console.log(index);
+			if (index > -1) {
+				working_rooms.splice(index, 1);
+			}
+		}
 	}
 }, 1000 / 60);
 
@@ -317,7 +310,7 @@ io.sockets.on('connection', function (socket) {
 		if (room_killedtanks.has(room)) {
 			room_killedtanks.get(room).delete(socket.id);
 			if (room_killedtanks.get(room).size == 0 && todelete === true) {
-				deleted_Rooms.set(room,true);
+				deleted_Rooms.set(room, true);
 				console.log('set deleted');
 				// room_tanks.delete(room);
 				// room_killedtanks.delete(room);
@@ -571,7 +564,7 @@ app.post('/create_room', urlencodedParser, function (req, res) {
 		room_tanks.set(room_crated.room_name, new Map());
 		room_bullets.set(room_crated.room_name, []);
 		room_killedtanks.set(room_crated.room_name, new Map());
-		deleted_Rooms.set(room_crated,false);
+		deleted_Rooms.set(room_crated, false);
 
 		var sql = "INSERT OR IGNORE INTO room  (Room_name) VALUES (?)";
 		con.all(sql, [room_crated.room_name], function (err, result) {
@@ -580,12 +573,12 @@ app.post('/create_room', urlencodedParser, function (req, res) {
 			console.log(room_crated);
 			console.dir(working_rooms);
 			req.flash('success_msg', 'Your are now Created room and enter Game');
-				var data = {
-					working: working_rooms
-				}
-				// res.render('rooms', { data });
+			var data = {
+				working: working_rooms
+			}
+			// res.render('rooms', { data });
 
-				res.redirect('/rooms');
+			res.redirect('/rooms');
 		});
 
 	}
@@ -635,9 +628,9 @@ app.get('/joinroom', urlencodedParser, function (req, res) {
 			if (err) throw err;
 
 			if (rows.length > 0) {
-					console.log('entering room');
-					res.render('game', {
-						myroom: room_joined.room_name
+				console.log('entering room');
+				res.render('game', {
+					myroom: room_joined.room_name
 				});
 			}
 
